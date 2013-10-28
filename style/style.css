@@ -1,0 +1,166 @@
+@font-face{
+font-family: Cantarell;
+src: url("cantareg.ttf");
+}
+
+html{
+margin: 0px;
+padding: 0px;
+height: 100%;
+}
+
+a{
+color: white;
+font-family: Cantarell;
+}
+
+body{
+color: white;
+background:url("bg.png") repeat-x #222222;
+font-family: sans;
+margin: 0px;
+padding: 0px;
+height: 100%;
+}
+
+table{
+padding: 20px;
+
+border-radius: 4px;
+font-family: Cantarell;
+}
+
+.submitButton{
+color: white;
+background-color: #0771b8;
+padding: 20px 40px 20px 40px;
+border-radius: 4px;
+font-family: Cantarell;
+margin-right: 20px;
+}
+
+.nextButton{
+color: white;
+margin-right: 20px;
+margin-left: auto;
+background-color: #0771b8;
+padding: 5px 5px 5px 5px;
+border-radius: 4px;
+font-family: Cantarell;
+}
+
+
+.cont{
+width: 800px;
+margin-right: auto;
+margin-left: auto;
+}
+
+.container {
+   min-height:100%;
+   position:relative;
+   margin:0px;
+}
+
+.banner{
+color: white;
+font-family: Cantarell;
+background-color: #0771b8;
+font-size: 36px;
+text-align: center;
+}
+
+#status{
+font-family: Cantarell;
+}
+
+.viewhead{
+font-size: 18px;
+color: #0771b8;
+background-color: rgba(255,255,255,0.8);
+}
+
+.viewtable{
+padding: 0px;
+}
+
+.viewtable tr:nth-child(2n+2){
+
+}
+.viewtable tr:nth-child(2n+3){
+
+}
+.viewtable tr:hover{
+background-color: rgba(7,113,184,0.5);
+
+}
+
+.viewtable .td{
+margin: 0px;
+padding: 0px;
+}
+
+.nav{
+width: 800px;
+margin-right: auto;
+margin-left: auto;
+font-family: Cantarell;
+}
+
+.nav a{
+color: #0771b8;
+}
+.nav a:hover{
+color: #eeeeee;
+}
+.nav .subhead{
+font-size: 20px;
+}
+
+.nav li{
+list-style: none;
+}
+.subhead{
+font-size: 18px;
+
+}
+
+.footer{
+position:absolute;
+bottom:0;
+margin: 30px 0px 0px 0px;
+width: 100%;
+height: 90px;
+background-color: rgba(128,128,128,0.5);
+background-color: #0771b8;
+font-family: Cantarell;
+color: #eeeeee;
+}
+.footer a{
+text-decoration: none;
+color: #eeeeee;
+}
+.footer a:hover{
+text-decoration: none;
+color: #222222;
+}
+
+input{
+font-family: Cantarell;
+}
+
+.subbanner{
+color: white;
+font-family: Cantarell;
+background-color: #0771b8;
+font-size: 30px;
+text-align: center;
+}
+
+select{
+font-family: Cantarell;
+}
+
+.blogArea{
+width: 800px;
+}
