@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from google.appengine.ext import ndb;
 
 class Question(ndb.Model):
@@ -21,3 +23,15 @@ class Answer(ndb.Model):
 class User(ndb.Model):
 	user=ndb.UserProperty()
 	uname=ndb.StringProperty()
+
+class Test(ndb.Model):
+	user=ndb.KeyProperty(User)
+	start=ndb.DateTimeProperty()
+	durationLeftInSeconds=ndb.IntegerProperty()
+
+class TestSheet(ndb.Model):
+	test=ndb.KeyProperty(Test)
+	question=ndb.KeyProperty(Question)
+	answer=ndb.KeyProperty(Answer)
+	
+	
