@@ -7,6 +7,9 @@ threadsafe: yes
 handlers:
 - url: /style
   static_dir: style
+
+- url: /js
+  static_dir: js
   
 - url: /.*
   script: adaptest.app

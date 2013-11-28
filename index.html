@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Spikey360app</title>
+<title>Adaptest - Simple Adaptive Testing</title>
 <link rel="stylesheet" type="text/css" href="/style/style.css"/>
 </head>
 <body>
@@ -10,6 +10,12 @@
 <div class="nav">
 <b>Simple Adaptive Testing</b>
 </div>
+<div>Users</div>
+<ul>
+{% for user in users %}
+<li>{{ user.uname }}</li>
+{% endfor %}
+</ul>
 </div>
 <div class="footer">
 <div align="center">All rights reserved c2013</div>

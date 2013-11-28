@@ -14,7 +14,7 @@ class Question(ndb.Model):
 
 class Answer(ndb.Model):
 	#reference
-	question=ndb.KeyProperty(Question)
+	question=ndb.KeyProperty(kind=Question, repeated=True)
 	#the actual answer in string
 	answer=ndb.StringProperty()
 	#correct or not
@@ -23,6 +23,7 @@ class Answer(ndb.Model):
 class User(ndb.Model):
 	user=ndb.UserProperty()
 	uname=ndb.StringProperty()
+	pwd=ndb.StringProperty()
 
 class Test(ndb.Model):
 	user=ndb.KeyProperty(User)
@@ -34,4 +35,6 @@ class TestSheet(ndb.Model):
 	question=ndb.KeyProperty(Question)
 	answer=ndb.KeyProperty(Answer)
 	
-	
+class Credentials(ndb.Model):
+	user=ndb.KeyProperty(User)
+	estimatedTheta=ndb.FloatProperty()
