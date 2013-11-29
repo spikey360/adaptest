@@ -41,11 +41,11 @@ class AddQuestion(webapp2.RequestHandler):
 		for i in range(4):
 			a=Answer()
 			a.answer=self.request.get('a'+str(i+1))
-			#print 'a'+str(i)+" loop: "+ans[i].answer
+			checked=self.request.get('c'+str(i+1))
+			if checked=="true":
+				a.correct=True
 			a.question=putQ
 			ans.append(a)
-			#print putQ
-			#print ans
 		try:
 			for i in range(4):
 				ans[i].put()
