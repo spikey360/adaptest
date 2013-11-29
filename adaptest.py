@@ -4,6 +4,7 @@ import webapp2
 import jinja2
 import os
 
+from models import User
 from models import Question
 from models import Answer
 
@@ -11,10 +12,6 @@ from google.appengine.ext import ndb
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
-class User(ndb.Model):
-	user=ndb.UserProperty()
-	uname=ndb.StringProperty()
-	pwd=ndb.StringProperty()
 
 class HomeHandler(webapp2.RequestHandler):
 	def get(self):
