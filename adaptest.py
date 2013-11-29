@@ -33,16 +33,18 @@ class AddQuestion(webapp2.RequestHandler):
 		q.b=0.0
 		q.a=1.0
 		q.c=0.25
+		putQ=None
 		try:
-			q.put()
+			putQ=q.put()
 		except TransactionFailedError:
 			self.response.out.write("F")
+			return
 		
 		ans=[Answer()]*4
 		for i in range(4):
 			#ans[i]=Answer()
 			ans[i].answer=self.request.get('a'+str(i))
-			ans[i].question=q.key().id_or_name()
+			ans[i].question=putQ
 		try:
 			for i in range(4):
 				ans[i].put()

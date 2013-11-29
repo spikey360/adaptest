@@ -14,7 +14,7 @@ class Question(ndb.Model):
 
 class Answer(ndb.Model):
 	#reference
-	question=ndb.KeyProperty(kind=Question, repeated=True)
+	question=ndb.KeyProperty(Question)
 	#the actual answer in string
 	answer=ndb.StringProperty()
 	#correct or not
