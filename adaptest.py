@@ -37,11 +37,15 @@ class AddQuestion(webapp2.RequestHandler):
 			self.response.out.write("F")
 			return
 		
-		ans=[Answer()]*4
+		ans=[]
 		for i in range(4):
-			#ans[i]=Answer()
-			ans[i].answer=self.request.get('a'+str(i))
-			ans[i].question=putQ
+			a=Answer()
+			a.answer=self.request.get('a'+str(i+1))
+			#print 'a'+str(i)+" loop: "+ans[i].answer
+			a.question=putQ
+			ans.append(a)
+			#print putQ
+			#print ans
 		try:
 			for i in range(4):
 				ans[i].put()
