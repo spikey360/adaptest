@@ -2,6 +2,11 @@
 
 from google.appengine.ext import ndb;
 
+class User(ndb.Model):
+	user=ndb.UserProperty()
+	uname=ndb.StringProperty()
+	pwd=ndb.StringProperty()
+
 class Question(ndb.Model):
 	#the actual question in string
 	question=ndb.StringProperty()
@@ -23,11 +28,6 @@ class Answer(ndb.Model):
 	answer=ndb.StringProperty()
 	#correct or not
 	correct=ndb.BooleanProperty()
-
-class User(ndb.Model):
-	user=ndb.UserProperty()
-	uname=ndb.StringProperty()
-	pwd=ndb.StringProperty()
 
 class Test(ndb.Model):
 	user=ndb.KeyProperty(User)
