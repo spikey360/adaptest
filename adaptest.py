@@ -44,6 +44,8 @@ class AddQuestion(webapp2.RequestHandler):
 			checked=self.request.get('c'+str(i+1))
 			if checked=="true":
 				a.correct=True
+			else:
+				a.correct=False
 			a.question=putQ
 			ans.append(a)
 		try:
