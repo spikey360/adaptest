@@ -11,6 +11,10 @@ class Question(ndb.Model):
 	b=ndb.FloatProperty()
 	#guessing
 	c=ndb.FloatProperty()
+	#posted by
+	poster=ndb.KeyProperty(User)
+	#time
+	time=ndb.DateTimeProperty(auto_now=True)
 
 class Answer(ndb.Model):
 	#reference
