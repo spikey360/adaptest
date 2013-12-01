@@ -17,7 +17,7 @@ class Question(ndb.Model):
 	#guessing
 	c=ndb.FloatProperty()
 	#posted by
-	poster=ndb.KeyProperty(User)
+	poster=ndb.UserProperty()
 	#time
 	time=ndb.DateTimeProperty(auto_now=True)
 
@@ -42,3 +42,4 @@ class TestSheet(ndb.Model):
 class Credentials(ndb.Model):
 	user=ndb.KeyProperty(User)
 	estimatedTheta=ndb.FloatProperty()
+

@@ -9,27 +9,41 @@ from models import Question
 from models import Answer
 
 from google.appengine.ext import ndb
+from google.appengine.api import users
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 
 class HomeHandler(webapp2.RequestHandler):
 	def get(self):
-		users=ndb.gql("SELECT * FROM User")
-		vals={'users':users}
+		questions=ndb.gql("SELECT * FROM Question")
+		vals={'questions':questions}
 		template=jinjaEnv.get_template('index.html')
 		self.response.out.write(template.render(vals))
+		
 class AddQuestion(webapp2.RequestHandler):
 	def get(self):
 		vals={}
+		user=users.get_current_user()
+		if user:
+			#some sort of notification about the user who is logged in
+			vals['current_user']=user.nickname()
+		else:
+			self.redirect(users.create_login_url(self.request.uri))
 		template=jinjaEnv.get_template('addQuestion.html')
 		self.response.out.write(template.render(vals))
 	def post(self):
+		user=users.get_current_user()
 		q=Question()
 		q.question=self.request.get('q')
 		q.b=0.0
 		q.a=1.0
 		q.c=0.25
+		if user:
+			#create/find out the User class
+			q.poster=user			
+		else:
+			self.redirect(users.create_login_url(self.request.uri))
 		putQ=None
 		try:
 			putQ=q.put()
