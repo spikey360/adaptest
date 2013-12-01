@@ -20,6 +20,12 @@ $.ajax({
 	function(x){
 		if(x=="S"){
 			window.alert("Posted!");
+			document.getElementById('a1').value
+			=document.getElementById('a2').value
+			=document.getElementById('a3').value
+			=document.getElementById('a4').value
+			=document.getElementById('q').value
+			=""
 			return;
 		}
 		if(x=="F"){
