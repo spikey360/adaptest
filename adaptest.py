@@ -20,7 +20,23 @@ class HomeHandler(webapp2.RequestHandler):
 		vals={'questions':questions}
 		template=jinjaEnv.get_template('index.html')
 		self.response.out.write(template.render(vals))
-		
+
+class AnswerQuestion(webapp2.RequestHandler):
+	def get(self,q_id):
+		query=Question.query(Question.key==ndb.Key('Question',int(q_id)))
+		question=None
+		answers=[]
+		if query.count()==1:
+			question=query.get()
+			query=Answer.query(Answer.question==ndb.Key('Question',question.key.id()))
+			answers=query.fetch()
+		else:
+			question=Question(question="Could not find this question")
+			answers=["..."]
+		vals={'question':question,'answers':answers}
+		template=jinjaEnv.get_template('answerQuestion.html')
+		self.response.out.write(template.render(vals))
+
 class AddQuestion(webapp2.RequestHandler):
 	def get(self):
 		vals={}
@@ -72,6 +88,7 @@ class AddQuestion(webapp2.RequestHandler):
 app=webapp2.WSGIApplication(
 [('/',HomeHandler),
 ('/estim/add',AddQuestion),
+(r'/answerQuestion/(\S+)',AnswerQuestion),
 ],
 debug=True
 )

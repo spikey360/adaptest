@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>Adaptest - Simple Adaptive Testing</title>
+<link rel="stylesheet" type="text/css" href="/style/style.css"/>
+<script src="/js/submit.js"></script>
+<script src="/js/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+<div class="banner">Adaptest</div>
+<div class="cont">
+<div class="nav">
+<b>Simple Adaptive Testing</b>
+</div>
+<div>Answer the question</div>
+<div>
+<table>
+<tr><td></td><td><b>{{ question.question }}</b></td></tr>
+{% for answer in answers %}
+<tr><td><input type="radio" name='correct'></td><td>{{ answer.answer }}</td></tr>
+{% endfor %}
+<tr><td><input type="button" value="Submit" onclick='submit()'></td><td></td></tr>
+</table>
+</div>
+</div>
+<div class="footer">
+<div>Logged in as <b>{{ current_user }}</b></div>
+<div align="center">All rights reserved c2013</div>
+</div>
+</div>
+</body>
+</html>
