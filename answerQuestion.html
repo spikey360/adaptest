@@ -17,9 +17,10 @@
 <table>
 <tr><td></td><td><b>{{ question.question }}</b></td></tr>
 {% for answer in answers %}
-<tr><td><input type="radio" name='correct'></td><td>{{ answer.answer }}</td></tr>
+<tr><td><input type="radio" name='correct' onclick="setAnswer('{{ answer.key.id() }}')"></td><td>{{ answer.answer }}</td></tr>
 {% endfor %}
-<tr><td><input type="button" value="Submit" onclick=''></td><td></td></tr>
+<tr><td></td><td></td></tr>
+<tr><td></td><td><input type="button" value="Submit" onclick='submitAnswer()'></td></tr>
 </table>
 </div>
 </div>

@@ -37,3 +37,34 @@ $.ajax({
 		}
 	});
 }
+var a_key="";
+function setAnswer(k){
+	a_key=k;
+}
+function submitAnswer(){
+k=a_key;
+if(k.length==0 || k==0){ //one should actually validate using regexp TODO
+	window.alert("Cannot submit such a null answer");
+	return;
+}else{
+	$.ajax({
+		type: "POST",
+		url: document.location.pathname,
+		data: {answer:k}
+	}).done(function(x){
+				if(x=="S"){
+					window.alert("Answered successfully");
+				}
+				else if(x=="R"){
+					window.alert("You've already answered this once");
+				}
+				else if(x=="F"){
+					window.alert("Failed.. for some reason.");
+				}
+				else{
+					window.alert("x="+x);
+				}
+				
+	});
+}
+}

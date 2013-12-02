@@ -29,6 +29,14 @@ class Answer(ndb.Model):
 	#correct or not
 	correct=ndb.BooleanProperty()
 
+class AnsweredQuestion(ndb.Model):
+	#the user who answered
+	user=ndb.UserProperty()
+	#the answer the user gave
+	answer=ndb.KeyProperty(Answer)
+	#the time at which this was given
+	time=ndb.DateTimeProperty(auto_now=True)
+
 class Test(ndb.Model):
 	user=ndb.KeyProperty(User)
 	start=ndb.DateTimeProperty()

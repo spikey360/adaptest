@@ -7,6 +7,7 @@ import os
 from models import User
 from models import Question
 from models import Answer
+from models import AnsweredQuestion
 
 from google.appengine.ext import ndb
 from google.appengine.api import users
@@ -41,6 +42,26 @@ class AnswerQuestion(webapp2.RequestHandler):
 		vals={'question':question,'answers':answers,'current_user':user}
 		template=jinjaEnv.get_template('answerQuestion.html')
 		self.response.out.write(template.render(vals))
+	def post(self, q_id):
+		#q_id not used though
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
+		aq=AnsweredQuestion()
+		a_id=self.request.get('answer')
+		query=Answer.query(Answer.key==ndb.Key('Answer',int(a_id)))
+		if query.count()==1:
+			#then a valid answer has been given for some question
+			aq.user=user
+			aq.answer=query.get().key
+			try:
+				aq.put()
+				self.response.out.write("S")
+			except TransactionFailedError:
+				self.response.out.write("F")
+		else:
+			#invalid answer given
+			self.response.out.write("F")
 
 class AddQuestion(webapp2.RequestHandler):
 	def get(self):
