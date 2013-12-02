@@ -13,7 +13,7 @@
 <div>Questions</div>
 <ul>
 {% for q in questions %}
-<li>{{ q.question }}</li>
+<a href="/estim/answer/{{ q.key.id() }}"><li>{{ q.question }}</li></a>
 {% endfor %}
 </ul>
 </div>
