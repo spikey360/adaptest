@@ -13,7 +13,7 @@
     // Create and populate the data table.
     var data = new google.visualization.DataTable();
     data.addColumn('number', 'X');
-    data.addColumn('number', 'theta');
+    data.addColumn('number', 'θ');
     //data.addColumn('number', 'Shape 2');
 {% for x,y in correctDist.items() %}
 {% if y!=0.0 %}
@@ -25,10 +25,13 @@ data.addRow([{{ x }},{{ y }}]);
     // Create and draw the visualization.
     var chart = new google.visualization.ScatterChart(
         document.getElementById('visualization'));
-    chart.draw(data, {title: 'Cool shapes',
+    chart.draw(data, {title: 'Correct answer distribution across θ',
                       width: 600, height: 400,
-                      vAxis: {title: "Y", titleTextStyle: {color: "green"}},
-                      hAxis: {title: "X", titleTextStyle: {color: "green"}}}
+                      backgroundColor: "#0771b8",
+                      colors:['white',"#0771b8"],
+                      fontName: 'Cantarell',
+                      vAxis: {title: "θ", titleTextStyle: {color: "white"}},
+                      hAxis: {title: "p(θ)", titleTextStyle: {color: "white"}}}
               );
 }
 
@@ -47,7 +50,7 @@ data.addRow([{{ x }},{{ y }}]);
 <table>
 <tr><td></td><td><b>{{ question.question }}</b></td></tr>
 {% for answer in answers %}
-<tr><td></td><td>{{ answer.answer }}</textarea></td></tr>
+<tr><td></td><td>{{ answer.answer }}</td></tr>
 {% endfor %}
 
 </table>
