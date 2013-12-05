@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Adaptest - Simple Adaptive Testing</title>
+<link rel="stylesheet" type="text/css" href="/style/style.css"/>
+<script src="/js/submit.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="//www.google.com/jsapi"></script>
+<script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+</script>
+<script type="text/javascript">
+      function drawVisualization() {
+    // Create and populate the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('number', 'X');
+    data.addColumn('number', 'theta');
+    //data.addColumn('number', 'Shape 2');
+{% for x,y in correctDist.items() %}
+{% if y!=0.0 %}
+data.addRow([{{ x }},{{ y }}]);
+{% endif %}
+{% endfor %}
+    
+
+    // Create and draw the visualization.
+    var chart = new google.visualization.ScatterChart(
+        document.getElementById('visualization'));
+    chart.draw(data, {title: 'Cool shapes',
+                      width: 600, height: 400,
+                      vAxis: {title: "Y", titleTextStyle: {color: "green"}},
+                      hAxis: {title: "X", titleTextStyle: {color: "green"}}}
+              );
+}
+
+      google.setOnLoadCallback(drawVisualization);
+</script>
+</head>
+<body>
+<div class="container">
+<div class="banner"><a href="/" class="jump">Adaptest</a></div>
+<div class="cont">
+<div class="nav">
+<b>Simple Adaptive Testing</b>
+</div>
+<div>Add a question</div>
+<div>
+<table>
+<tr><td></td><td><b>{{ question.question }}</b></td></tr>
+{% for answer in answers %}
+<tr><td></td><td>{{ answer.answer }}</textarea></td></tr>
+{% endfor %}
+
+</table>
+<div id="visualization" style="width: 500px; height: 400px;"></div>
+<br><br><br><br>
+<br><br><br><br>
+</div>
+</div>
+<div class="footer">
+<div align="center">Logged in as <b>{{ current_user }}</b></div>
+<div align="center">All rights reserved c2013</div>
+</div>
+</div>
+</body>
+</html>

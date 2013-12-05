@@ -47,7 +47,7 @@ class TestSheet(ndb.Model):
 	question=ndb.KeyProperty(Question)
 	answer=ndb.KeyProperty(Answer)
 	
-class Credentials(ndb.Model):
-	user=ndb.KeyProperty(User)
+class EstimationCredentials(ndb.Model):
+	user=ndb.UserProperty()
 	estimatedTheta=ndb.FloatProperty()
 

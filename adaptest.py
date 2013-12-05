@@ -8,6 +8,7 @@ from models import User
 from models import Question
 from models import Answer
 from models import AnsweredQuestion
+from models import EstimationCredentials
 
 from google.appengine.ext import ndb
 from google.appengine.api import users
@@ -111,9 +112,81 @@ class AddQuestion(webapp2.RequestHandler):
 		except TransactionFailedError:
 			self.response.out.write("F")
 
+class AddEstimationCredential(webapp2.RequestHandler):
+	def get(self):
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
+		else:
+			es=EstimationCredentials()
+			es.user=user
+			es.estimatedTheta=float(self.request.get('theta'))
+			es.put()
+			self.response.out.write("Added")
+
+class PerformEstimation(webapp2.RequestHandler):
+	def get(self, q_id):
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
+		query=Question.query(Question.key==ndb.Key('Question',int(q_id)))
+		question=None
+		answers=[]
+		if query.count()==1:
+			question=query.get()
+			query=Answer.query(Answer.question==ndb.Key('Question',question.key.id()))
+			answers=query.fetch()
+		else:
+			question=Question(question="Could not find this question")
+			answers=["..."]
+		#TODO must check answers size
+		
+		correctAnswersCount=0
+		correctAnswereeThetas={}
+		totalAnswereeThetas={}
+		#initialize all possible estimation thetas
+		for j in range(0,10,1):
+			correctAnswereeThetas[float(j)]=0.0
+			totalAnswereeThetas[float(j)]=0.0
+		totalAnswersCount=0
+		for answer in answers:
+			#find number of people who gave this answer
+			query=AnsweredQuestion.query(AnsweredQuestion.answer==ndb.Key('Answer',answer.key.id()))
+			#add to the count of people attempting the question
+			totalAnswersCount=totalAnswersCount+query.count()
+			givenAnswers=query.fetch() #who are the people who answered this question?
+			for givenAnswer in givenAnswers:
+				who=EstimationCredentials.query(EstimationCredentials.user==givenAnswer.user)
+				#TODO check if there is only one credential(not implemented just now)
+				#find theta of this person
+				theta=who.get().estimatedTheta
+				totalAnswereeThetas[theta]=totalAnswereeThetas[theta]+1.0
+				if answer.correct:
+				#correctAnswersCount=correctAnswersCount+query.count() #add number of correct answers
+				
+				#	#increment the specific estimatedTheta counter by 1
+					correctAnswereeThetas[theta]=correctAnswereeThetas[theta]+1.0
+				
+		#normalize correctAnswerrThetas
+		for j in range(0,10,1):
+			if totalAnswereeThetas[float(j)]!=0: #ensures we don't divide by zero
+				correctAnswereeThetas[float(j)]=correctAnswereeThetas[float(j)]/totalAnswereeThetas[float(j)]
+				
+			#now the above map gives the p(theta) for the given question
+		#need to format data and send it to page
+		print "Correct"
+		print correctAnswereeThetas
+		print "Total"
+		print totalAnswereeThetas
+		vals={'question':question,'answers':answers,'correctDist':correctAnswereeThetas,'totalDist':totalAnswereeThetas}
+		template=jinjaEnv.get_template("perform.html")
+		self.response.out.write(template.render(vals))
+
 app=webapp2.WSGIApplication(
 [('/',HomeHandler),
 ('/estim/add',AddQuestion),
+('/estim/adduser',AddEstimationCredential),
+(r'/estim/perform/(\S+)',PerformEstimation),
 (r'/estim/answer/(\S+)',AnswerQuestion),
 ],
 debug=True
