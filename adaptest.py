@@ -141,19 +141,17 @@ class PerformEstimation(webapp2.RequestHandler):
 			answers=["..."]
 		#TODO must check answers size
 		
-		correctAnswersCount=0
+		
 		correctAnswereeThetas={}
 		totalAnswereeThetas={}
 		#initialize all possible estimation thetas
 		for j in range(0,10,1):
 			correctAnswereeThetas[float(j)]=0.0
 			totalAnswereeThetas[float(j)]=0.0
-		totalAnswersCount=0
+		
 		for answer in answers:
-			#find number of people who gave this answer
-			query=AnsweredQuestion.query(AnsweredQuestion.answer==ndb.Key('Answer',answer.key.id()))
-			#add to the count of people attempting the question
-			totalAnswersCount=totalAnswersCount+query.count()
+			#find number of people who gave this answer, make it distinct for user, meaning only one answer by a given user will be tabulated
+			query=AnsweredQuestion.query(AnsweredQuestion.answer==ndb.Key('Answer',answer.key.id()),projection=[AnsweredQuestion.user],group_by=[AnsweredQuestion.user])
 			givenAnswers=query.fetch() #who are the people who answered this question?
 			for givenAnswer in givenAnswers:
 				who=EstimationCredentials.query(EstimationCredentials.user==givenAnswer.user)
@@ -162,9 +160,7 @@ class PerformEstimation(webapp2.RequestHandler):
 				theta=who.get().estimatedTheta
 				totalAnswereeThetas[theta]=totalAnswereeThetas[theta]+1.0
 				if answer.correct:
-				#correctAnswersCount=correctAnswersCount+query.count() #add number of correct answers
-				
-				#	#increment the specific estimatedTheta counter by 1
+				#increment the specific estimatedTheta counter by 1
 					correctAnswereeThetas[theta]=correctAnswereeThetas[theta]+1.0
 				
 		#normalize correctAnswerrThetas
@@ -174,11 +170,7 @@ class PerformEstimation(webapp2.RequestHandler):
 				
 			#now the above map gives the p(theta) for the given question
 		#need to format data and send it to page
-		print "Correct"
-		print correctAnswereeThetas
-		print "Total"
-		print totalAnswereeThetas
-		vals={'question':question,'answers':answers,'correctDist':correctAnswereeThetas,'totalDist':totalAnswereeThetas}
+		vals={'question':question,'answers':answers,'correctDist':correctAnswereeThetas,'current_user':user}
 		template=jinjaEnv.get_template("perform.html")
 		self.response.out.write(template.render(vals))
 
