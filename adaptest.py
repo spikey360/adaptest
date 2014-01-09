@@ -31,6 +31,21 @@ class HomeHandler(webapp2.RequestHandler):
 		template=jinjaEnv.get_template('index.html')
 		#render the values into the template and put it in the output stream of the RequestHandler
 		self.response.out.write(template.render(vals))
+
+class PerformanceHandler(webapp2.RequestHandler):
+	def get(self):
+		#We are using a NoSQL DB so will be refraining fom writing GQL
+		#query for all Question objects in DB
+		query=Question.query()
+		#fetch them
+		questions=query.fetch()
+		#Values we will be passing to the view (of MVC)
+		vals={'questions':questions}
+		#get the page template suitable for this page
+		template=jinjaEnv.get_template('performance.html')
+		#render the values into the template and put it in the output stream of the RequestHandler
+		self.response.out.write(template.render(vals))
+
 #AnswerQuestion
 #Handler class for the page where the user can answer from mutiple choices
 #Presently, does just that
@@ -206,6 +221,7 @@ app=webapp2.WSGIApplication(
 ('/estim/add',AddQuestion),
 ('/estim/adduser',AddEstimationCredential),
 (r'/estim/perform/(\S+)',PerformEstimation),
+('/estim/performance',PerformanceHandler),
 (r'/estim/answer/(\S+)',AnswerQuestion),
 ],
 debug=True

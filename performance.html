@@ -1,12 +1,11 @@
 <html>
 <head>
-<title>Adaptest - Simple Adaptive Testing</title>
+<title>Adaptest - Simple Adaptive Testing : Performance</title>
 <link rel="stylesheet" type="text/css" href="/style/style.css"/>
 </head>
 <body>
 <div class="container">
 <div class="banner"><a href="/" class="jump">Adaptest</a></div>
-<div><a href="/estim/performance" class="jump"><span>Performance</span></a></div>
 <div class="cont">
 <div class="nav">
 <b>Simple Adaptive Testing</b>
@@ -14,7 +13,7 @@
 <div>Questions</div>
 <ul>
 {% for q in questions %}
-<a href="/estim/answer/{{ q.key.id() }}"><li>{{ q.question }}</li></a>
+<a href="/estim/perform/{{ q.key.id() }}"><li>{{ q.question }}</li></a>
 {% endfor %}
 </ul>
 </div>
