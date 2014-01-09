@@ -13,6 +13,10 @@ handlers:
   
 - url: /.*
   script: adaptest.app
+
+- url: /estim/admin/.*
+  script: adaptest.app
+  login: admin
   
 libraries:
 - name: webapp2

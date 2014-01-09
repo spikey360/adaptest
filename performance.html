@@ -6,14 +6,15 @@
 <body>
 <div class="container">
 <div class="banner"><a href="/" class="jump">Adaptest</a></div>
+<div class="nav"><a href="/estim/add" class="jump">Add Question</a></div>
 <div class="cont">
 <div class="nav">
-<b>Simple Adaptive Testing</b>
+<b>Performance</b>
 </div>
-<div>Questions</div>
+<br>
 <ul>
 {% for q in questions %}
-<a href="/estim/perform/{{ q.key.id() }}"><li>{{ q.question }}</li></a>
+<a href="/estim/admin/perform/{{ q.key.id() }}"><li>{{ q.question }}</li></a>
 {% endfor %}
 </ul>
 </div>

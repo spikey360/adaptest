@@ -220,8 +220,8 @@ app=webapp2.WSGIApplication(
 [('/',HomeHandler),
 ('/estim/add',AddQuestion),
 ('/estim/adduser',AddEstimationCredential),
-(r'/estim/perform/(\S+)',PerformEstimation),
-('/estim/performance',PerformanceHandler),
+(r'/estim/admin/perform/(\S+)',PerformEstimation),
+('/estim/admin/performance',PerformanceHandler),
 (r'/estim/answer/(\S+)',AnswerQuestion),
 ],
 debug=True
