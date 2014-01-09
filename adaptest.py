@@ -15,6 +15,18 @@ from google.appengine.api import users
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
+def createDefaultCredential(user, theta=5.0):
+	es=None
+	query=EstimationCredentials.query(EstimationCredentials.user==user)
+	if query.count()==1:
+		#already exists, return
+		return
+	else:
+		es=EstimationCredentials()
+		es.user=user
+	es.estimatedTheta=theta
+	es.put()
+
 #HomeHandler
 #Handler class for the home page
 #Presently, shows and gives link to all questions in the DB
@@ -85,6 +97,8 @@ class AnswerQuestion(webapp2.RequestHandler):
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
+		#ensure that credential to answer exists
+		createDefaultCredential(user)
 		#initialize a new AnsweredQuestion
 		aq=AnsweredQuestion()
 		#get the id of the Answer which has been selected
@@ -160,11 +174,29 @@ class AddEstimationCredential(webapp2.RequestHandler):
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		else:
+			#template=jinjaEnv.get_template('credential.html')
+			#self.response.out.write(template.render(vals))
+			self.createDefault(user,float(self.request.get('theta')))
+			self.response.out.write("Added")
+			
+	def post(self):
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
+		else:
+			self.createDefault(user,float(self.request.get('theta')))
+			self.response.out.write("Added")
+			
+	def createDefault(self, user, theta=5.0):
+		es=None
+		query=EstimationCredentials.query(EstimationCredentials.user==user)
+		if query.count()==1:
+			es=query.get()
+		else:
 			es=EstimationCredentials()
 			es.user=user
-			es.estimatedTheta=float(self.request.get('theta'))
-			es.put()
-			self.response.out.write("Added")
+		es.estimatedTheta=theta
+		es.put()
 
 class PerformEstimation(webapp2.RequestHandler):
 	def get(self, q_id):
