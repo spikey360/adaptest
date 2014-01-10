@@ -250,8 +250,8 @@ class PerformEstimation(webapp2.RequestHandler):
 
 app=webapp2.WSGIApplication(
 [('/',HomeHandler),
-('/estim/add',AddQuestion),
-('/estim/adduser',AddEstimationCredential),
+('/estim/admin/add',AddQuestion),
+#('/estim/adduser',AddEstimationCredential), #not needed from user side
 (r'/estim/admin/perform/(\S+)',PerformEstimation),
 ('/estim/admin/performance',PerformanceHandler),
 (r'/estim/answer/(\S+)',AnswerQuestion),
