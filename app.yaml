@@ -10,14 +10,15 @@ handlers:
 
 - url: /js
   static_dir: js
-  
-- url: /.*
-  script: adaptest.app
 
 - url: /estim/admin/.*
   script: adaptest.app
   login: admin
-  
+    
+- url: /.*
+  script: adaptest.app
+
+
 libraries:
 - name: webapp2
   version: "2.5.2"
