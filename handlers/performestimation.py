@@ -8,6 +8,7 @@ from models import Answer
 from models import AnsweredQuestion
 from models import EstimationCredentials
 from google.appengine.api import users
+from google.appengine.ext import ndb
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
