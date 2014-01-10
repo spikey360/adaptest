@@ -3,13 +3,10 @@
 import webapp2
 import jinja2
 import os
-
-from models import User
 from models import Question
 from models import Answer
 from models import AnsweredQuestion
 from models import EstimationCredentials
-
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
