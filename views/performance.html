@@ -14,7 +14,7 @@
 <br>
 <ul>
 {% for q in questions %}
-<a href="/estim/admin/perform/{{ q.key.id() }}"><li>{{ q.question }}</li></a>
+<li><a href="/estim/admin/perform/{{ q.key.id() }}">{{ q.question }}</a></li>
 {% endfor %}
 </ul>
 </div>
