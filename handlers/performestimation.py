@@ -12,12 +12,9 @@ from google.appengine.ext import ndb
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
-class PerformEstimation(webapp2.RequestHandler):
-	def get(self, q_id):
-		user=users.get_current_user()
-		if not user:
-			self.redirect(users.create_login_url(self.request.uri))
-		query=Question.query(Question.key==ndb.Key('Question',int(q_id)))
+class DistributionAnalyzer:
+	def analyzeQuestion(self,q_id):
+		query=Question.query(Question.key==ndb.Key('Question',q_id))
 		question=None
 		answers=[]
 		if query.count()==1:
@@ -55,9 +52,19 @@ class PerformEstimation(webapp2.RequestHandler):
 		for j in range(0,10,1):
 			if totalAnswereeThetas[float(j)]!=0: #ensures we don't divide by zero
 				correctAnswereeThetas[float(j)]=correctAnswereeThetas[float(j)]/totalAnswereeThetas[float(j)]
+		return (question, answers, correctAnswereeThetas)
 				
-			#now the above map gives the p(theta) for the given question
+		
+
+class PerformEstimation(webapp2.RequestHandler):
+	def get(self, q_id):
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
+		#now the above map gives the p(theta) for the given question
 		#need to format data and send it to page
+		###############################################
+		(question,answers,correctAnswereeThetas)=DistributionAnalyzer().analyzeQuestion(int(q_id))
 		vals={'question':question,'answers':answers,'correctDist':correctAnswereeThetas,'current_user':user}
 		template=jinjaEnv.get_template("perform.html")
 		self.response.out.write(template.render(vals))
