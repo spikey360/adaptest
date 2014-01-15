@@ -54,7 +54,7 @@ class EstimationCredentials(ndb.Model):
 	estimatedTheta=ndb.FloatProperty()
 	
 class globalInstances(ndb.Model):
-	examinee=ndb.StringProperty()
+	examinee=ndb.UserProperty()
 	TotalQuestions=ndb.StringProperty()
 	questionNumberToGive=ndb.StringProperty()
 	questionTimerEnd=ndb.StringProperty()

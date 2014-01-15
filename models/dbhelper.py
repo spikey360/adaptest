@@ -53,8 +53,8 @@ def isCorrectAnswer(a_id):
 	else:
 		raise InvalidIdError(a_id)
 		
-def update_or_Insert(userId, currQuestion, questionNumber, timer):
-	query=globalInstances.query(globalInstances.examinee==userId)
+def update_or_Insert(user, currQuestion, questionNumber, timer):
+	query=globalInstances.query(globalInstances.examinee==user)
 	if query.count()>=1:	# time for update
 		for currentUser in query:
 			currentUser.TotalQuestions=currQuestion
@@ -63,15 +63,15 @@ def update_or_Insert(userId, currQuestion, questionNumber, timer):
 			currentUser.put()
 	else:	# create a new one :)
 		instance=globalInstances()
-		instance.examinee=userId
+		instance.examinee=user
 		instance.TotalQuestions=currQuestion
 		instance.questionNumberToGive=questionNumber
 		instance.questionTimerEnd=timer
 		instance.put()
 	return
 
-def fetchGlobal(userId):
-	query=globalInstances.query(globalInstances.examinee==userId)
+def fetchGlobal(user):
+	query=globalInstances.query(globalInstances.examinee==user)
 	if query.count()==1:
 		return query.get()
 	else:
