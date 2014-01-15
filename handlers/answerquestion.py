@@ -76,7 +76,7 @@ class AnswerQuestion(webapp2.RequestHandler):
 			#	self.response.out.write("S") #write a flag indicating success
 			#except TransactionFailedError: #some bug here
 			#	self.response.out.write("F")
-			result=insertQuestionAnswered(user.user_id(),q_id,query.get().key)
+			result=insertQuestionAnswered(user,q_id,query.get().key)
 			self.response.out.write(result)
 		else:
 			#invalid answer given

@@ -32,7 +32,7 @@ class Answer(ndb.Model):
 
 class AnsweredQuestion(ndb.Model):
 	#the user who answered
-	user=ndb.StringProperty()
+	user=ndb.UserProperty()
 	question=ndb.StringProperty()
 	#the answer the user gave
 	answer=ndb.KeyProperty(Answer)

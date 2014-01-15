@@ -77,11 +77,11 @@ def fetchGlobal(userId):
 	else:
 		raise InvalidIdError(q_id)
 		
-def insertQuestionAnswered(userId,questionId,answerId):
+def insertQuestionAnswered(user,questionId,answerId):
 	aq=AnsweredQuestion()
 	#get the id of the Answer which has been selected
 	#query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.key==ndb.Key('Answer',int(answerId))))
-	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.question==questionId))
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user.key.id(),AnsweredQuestion.question==questionId))
 	if query.count()>=1:
 		#answer already given!
 		#self.response.out.write("F")
