@@ -3,7 +3,7 @@
 import webapp2
 import jinja2
 import os
-from models import Question
+from models.objects import Question
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 

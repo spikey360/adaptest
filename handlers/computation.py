@@ -2,7 +2,7 @@ import webapp2
 import jinja2
 import os
 import math
-from models import Question
+from models.objects import Question
 from handlers.performestimation import DistributionAnalyzer
 from google.appengine.ext import ndb
 

@@ -3,8 +3,8 @@
 import webapp2
 import jinja2
 import os
-from models import Question
-from models import Answer
+from models.objects import Question
+from models.objects import Answer
 from google.appengine.api import users
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))

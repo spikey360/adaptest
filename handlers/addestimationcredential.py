@@ -3,7 +3,7 @@
 import webapp2
 import jinja2
 import os
-from models import EstimationCredentials
+from models.objects import EstimationCredentials
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
