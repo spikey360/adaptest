@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from google.appengine.ext import ndb;
+from google.appengine.ext import db;
 
 class User(ndb.Model):
 	user=ndb.UserProperty()
@@ -50,4 +51,11 @@ class TestSheet(ndb.Model):
 class EstimationCredentials(ndb.Model):
 	user=ndb.UserProperty()
 	estimatedTheta=ndb.FloatProperty()
+	
+class globalInstances(ndb.Model):
+	examinee=ndb.StringProperty()
+	TotalQuestions=ndb.StringProperty()
+	questionNumberToGive=ndb.StringProperty()
+	questionTimerEnd=ndb.StringProperty()
+	
 
