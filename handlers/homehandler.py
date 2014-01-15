@@ -42,7 +42,7 @@ class HomeHandler(webapp2.RequestHandler):
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		else:
-			update_or_Insert(user.user_id(),str(10),str(0),str(round(time.time()+30.5)))
+			update_or_Insert(user,str(10),str(0),str(round(time.time()+30.5)))
 		time.sleep( 2 )
 		self.redirect("/test")
 	
