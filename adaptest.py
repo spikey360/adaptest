@@ -8,6 +8,7 @@ import handlers.addquestion
 import handlers.performestimation
 import handlers.addestimationcredential
 import handlers.computation
+import handlers.testmodule
 
 ######################
 HomeHandler=handlers.homehandler.HomeHandler
@@ -18,6 +19,7 @@ PerformEstimation=handlers.performestimation.PerformEstimation
 CredentialHandler=handlers.addestimationcredential.CredentialHandler
 ModifyCredentialHandler=handlers.addestimationcredential.ModifyCredentialHandler
 GetKhiHandler=handlers.computation.GetKhi
+TestModule=handlers.testmodule.TestModule
 ######################
 
 app=webapp2.WSGIApplication(
@@ -29,6 +31,7 @@ app=webapp2.WSGIApplication(
 (r'/estim/admin/credentials/(\S+)',ModifyCredentialHandler),
 (r'/estim/admin/computation/getkhi/(\S+)',GetKhiHandler),
 (r'/estim/answer/(\S+)',AnswerQuestion),
+('/test',TestModule),
 ],
 debug=True
 )

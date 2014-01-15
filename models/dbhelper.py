@@ -2,6 +2,7 @@
 
 from models.objects import Question
 from models.objects import Answer
+from models.objects import globalInstances
 from google.appengine.ext import ndb
 
 class InvalidIdError(Exception):
@@ -50,3 +51,27 @@ def isCorrectAnswer(a_id):
 		return query.get().correct
 	else:
 		raise InvalidIdError(a_id)
+		
+def update_or_Insert(userId, currQuestion, questionNumber, timer):
+	query=globalInstances.query(globalInstances.examinee==userId)
+	if query.count()>=1:	# time for update
+		for currentUser in query:
+			currentUser.TotalQuestions=currQuestion
+			currentUser.questionNumberToGive=questionNumber
+			currentUser.questionTimerEnd=timer
+			currentUser.put()
+	else:	# create a new one :)
+		instance=globalInstances()
+		instance.examinee=userId
+		instance.TotalQuestions=currQuestion
+		instance.questionNumberToGive=questionNumber
+		instance.questionTimerEnd=timer
+		instance.put()
+	return
+
+def fetchGlobal(userId):
+	query=globalInstances.query(globalInstances.examinee==userId)
+	if query.count()==1:
+		return query.get()
+	else:
+		raise InvalidIdError(q_id)
