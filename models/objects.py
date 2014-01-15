@@ -32,7 +32,8 @@ class Answer(ndb.Model):
 
 class AnsweredQuestion(ndb.Model):
 	#the user who answered
-	user=ndb.UserProperty()
+	user=ndb.StringProperty()
+	question=ndb.StringProperty()
 	#the answer the user gave
 	answer=ndb.KeyProperty(Answer)
 	#the time at which this was given
@@ -57,5 +58,3 @@ class globalInstances(ndb.Model):
 	TotalQuestions=ndb.StringProperty()
 	questionNumberToGive=ndb.StringProperty()
 	questionTimerEnd=ndb.StringProperty()
-	
-
