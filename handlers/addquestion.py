@@ -31,7 +31,7 @@ class AddQuestion(webapp2.RequestHandler):
 		q.c=0.25
 		if user:
 			#create/find out the User class
-			q.poster=user			
+			q.poster=user
 		else:
 			self.redirect(users.create_login_url(self.request.uri))
 		putQ=None
