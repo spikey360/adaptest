@@ -81,14 +81,14 @@ def insertQuestionAnswered(user,questionId,answerId):
 	aq=AnsweredQuestion()
 	#get the id of the Answer which has been selected
 	#query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.key==ndb.Key('Answer',int(answerId))))
-	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user.key.id(),AnsweredQuestion.question==questionId))
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==questionId))
 	if query.count()>=1:
 		#answer already given!
 		#self.response.out.write("F")
 		return 'R' #for trying to 'R'eanswer
 	else:
 		#then a valid answer has been given for some question
-		aq.user=userId
+		aq.user=user
 		aq.question=questionId
 		aq.answer=answerId
 		try:
