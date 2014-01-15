@@ -3,6 +3,7 @@
 from models.objects import Question
 from models.objects import Answer
 from models.objects import globalInstances
+from models.objects import AnsweredQuestion
 from google.appengine.ext import ndb
 
 class InvalidIdError(Exception):
@@ -73,3 +74,28 @@ def fetchGlobal(userId):
 		return query.get()
 	else:
 		raise InvalidIdError(q_id)
+		
+def insertQuestionAnswered(userId,questionId,answerId):
+	aq=AnsweredQuestion()
+	#get the id of the Answer which has been selected
+	#query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.key==ndb.Key('Answer',int(answerId))))
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.question==questionId))
+	if query.count()>=1:
+		#answer already given!
+		#self.response.out.write("F")
+		return 'R' #for trying to 'R'eanswer
+	else:
+		#then a valid answer has been given for some question
+		aq.user=userId
+		aq.question=questionId
+		aq.answer=answerId
+		try:
+			aq.put() #write it to DB
+			#self.response.out.write("S") #write a flag indicating success
+			return 'S'
+		except TransactionFailedError: #some bug here
+			#self.response.out.write("F")
+			return 'F'
+	return
+
+

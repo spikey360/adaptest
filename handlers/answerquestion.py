@@ -10,6 +10,8 @@ from models.objects import EstimationCredentials
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
+from models.dbhelper import insertQuestionAnswered
+
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
 def createDefaultCredential(user, theta=5.0):
@@ -58,27 +60,29 @@ class AnswerQuestion(webapp2.RequestHandler):
 	#overriding the function to be executed for a POST request
 	def post(self, q_id):
 		#TODO check if the question has already been answered by the user, if so, do not post the new answer
-		#q_id not used though
 		#get the current user, this is important if we are to take an answer for this question
+		
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		#ensure that credential to answer exists
 		createDefaultCredential(user)
 		#initialize a new AnsweredQuestion
-		aq=AnsweredQuestion()
+		#aq=AnsweredQuestion()
 		#get the id of the Answer which has been selected
 		a_id=self.request.get('answer')
 		query=Answer.query(Answer.key==ndb.Key('Answer',int(a_id)))
 		if query.count()==1:
 			#then a valid answer has been given for some question
-			aq.user=user #put the user name
-			aq.answer=query.get().key #the key id of the answer that has been given by him
-			try:
-				aq.put() #write it to DB
-				self.response.out.write("S") #write a flag indicating success
-			except TransactionFailedError: #some bug here
-				self.response.out.write("F")
+			#aq.user=user.user_id() #put the user name
+			#aq.answer=query.get().key #the key id of the answer that has been given by him
+			#try:
+			#	aq.put() #write it to DB
+			#	self.response.out.write("S") #write a flag indicating success
+			#except TransactionFailedError: #some bug here
+			#	self.response.out.write("F")
+			result=insertQuestionAnswered(user.user_id(),q_id,query.get().key)
+			self.response.out.write(result)
 		else:
 			#invalid answer given
 			self.response.out.write("F")

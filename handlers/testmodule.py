@@ -88,7 +88,7 @@ class TestModule(webapp2.RequestHandler):
 		else:
 			questionNumberToGive=questionNumberToGive+2
 		
-		questionTimerEnd=round(time.time()+32.5)
+		questionTimerEnd=round(time.time()+30.5)
 		update_or_Insert(user.user_id(), str(TotalQuestions), str(questionNumberToGive), str(questionTimerEnd))
 		time.sleep( 2 )
 		self.redirect("/test")
@@ -114,5 +114,3 @@ class TestModule(webapp2.RequestHandler):
 			self.response.write(QUESTION_PAGE_HTML % (qNo,questionTimerEnd,vals[0],vals[1],vals[2],vals[3],vals[4],CorrectOption))
 		else:
 			self.response.write("You Have finished giving the test, kindly press Take Test Button to redo the test!!!")
-
-
