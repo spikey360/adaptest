@@ -37,10 +37,12 @@ def fetchAnswersOf(Question):
 		raise
 
 def fetchMoreDifficultQuestions(b):
-	return None
+	query=Question.query(Question.b>=b)
+	return query.fetch()
 
 def fetchLessDifficultQuestions(b):
-	return None
+	query=Question.query(Question.b<=b)
+	return query.fetch()
 
 def isCorrectAnswer(a_id):
 	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))

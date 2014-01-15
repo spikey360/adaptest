@@ -10,9 +10,9 @@ class User(ndb.Model):
 class Question(ndb.Model):
 	#the actual question in string
 	question=ndb.StringProperty()
-	#difficulty
-	a=ndb.FloatProperty()
 	#discrimination
+	a=ndb.FloatProperty()
+	#difficulty
 	b=ndb.FloatProperty()
 	#guessing
 	c=ndb.FloatProperty()
