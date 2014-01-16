@@ -37,7 +37,7 @@ class HomeHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(vals))
 		
 	def post(self):
-		#just reset the globals
+		#just reset the globals for the currentUser in the DB
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))

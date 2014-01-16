@@ -8,7 +8,6 @@ import cgi
 import logging
 import time
 
-#at this point idk which i need 
 from models.objects import Question
 from models.objects import Answer
 from models.objects import AnsweredQuestion

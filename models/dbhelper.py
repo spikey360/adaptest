@@ -55,13 +55,15 @@ def isCorrectAnswer(a_id):
 		
 def update_or_Insert(user, currQuestion, questionNumber, timer):
 	query=globalInstances.query(globalInstances.examinee==user)
-	if query.count()>=1:	# time for update
+	if query.count()>=1:	
+		# Globals already exist for the user, so update
 		for currentUser in query:
 			currentUser.TotalQuestions=currQuestion
 			currentUser.questionNumberToGive=questionNumber
 			currentUser.questionTimerEnd=timer
 			currentUser.put()
-	else:	# create a new one :)
+	else:
+		# Globals for the currentUser does not exist, so create a new one :)
 		instance=globalInstances()
 		instance.examinee=user
 		instance.TotalQuestions=currQuestion
@@ -71,6 +73,7 @@ def update_or_Insert(user, currQuestion, questionNumber, timer):
 	return
 
 def fetchGlobal(user):
+	#fetches all globals for the currentUser logged in/giving the test
 	query=globalInstances.query(globalInstances.examinee==user)
 	if query.count()==1:
 		return query.get()
@@ -79,12 +82,9 @@ def fetchGlobal(user):
 		
 def insertQuestionAnswered(user,questionId,answerId):
 	aq=AnsweredQuestion()
-	#get the id of the Answer which has been selected
-	#query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.key==ndb.Key('Answer',int(answerId))))
 	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==questionId))
 	if query.count()>=1:
-		#answer already given!
-		#self.response.out.write("F")
+		#this means that the user has already answered the question with questionID, stop hem
 		return 'R' #for trying to 'R'eanswer
 	else:
 		#then a valid answer has been given for some question
@@ -92,11 +92,10 @@ def insertQuestionAnswered(user,questionId,answerId):
 		aq.question=questionId
 		aq.answer=answerId
 		try:
-			aq.put() #write it to DB
-			#self.response.out.write("S") #write a flag indicating success
+			#write it to DB
+			aq.put() 
 			return 'S'
 		except TransactionFailedError: #some bug here
-			#self.response.out.write("F")
 			return 'F'
 	return
 
