@@ -64,12 +64,13 @@ if(done!=total){
 	}
 	else{
 		mk=getMinimumKhi();
-		document.getElementById('result').innerHTML="<b>a</b>:"+mp_a+", <b>b</b>:"+mp_b+", c:0.25";
+		document.getElementById('result').innerHTML="<b>a</b>:"+mp_a+", <b>b</b>:"+mp_b+", <b>c</b>:0.25";
 	}
 
 }
 
 function estimateParams(q_id,quant_a,quant_b){
+done=0, total=0,c=d=0;
 quant_a=parseFloat(document.getElementById('quanta_a').value);
 quant_b=parseFloat(document.getElementById('quanta_b').value);
 aggregateKhi(q_id,quant_a,quant_b);
