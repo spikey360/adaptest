@@ -7,6 +7,7 @@ from models.objects import Question
 from models.objects import Answer
 from models.objects import AnsweredQuestion
 from models.objects import EstimationCredentials
+from models import dbhelper
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
@@ -37,19 +38,13 @@ class AnswerQuestion(webapp2.RequestHandler):
 		if not user:	#if user object is None i.e. No user can be determined
 			#redirect to the user authentication page
 			self.redirect(users.create_login_url(self.request.uri))
-		#We are looking for that question which the user is interested in answering
-		query=Question.query(Question.key==ndb.Key('Question',int(q_id))) #the question has an id q_id, which has been obtained from uri
 		question=None
 		answers=[]
-		if query.count()==1: #got only one question
-			question=query.get()
-			#run a query for those Answers which belong to this question
-			query=Answer.query(Answer.question==ndb.Key('Question',question.key.id()))
-			answers=query.fetch()
-		else: #found more than 1 question
-			#put some dummy but descriptive value for question and answer
-			question=Question(question="Could not find this question")
-			answers=["..."]
+		try:
+			question=dbhelper.fetchQuestion(int(q_id))
+			answers=dbhelper.fetchAnswersOf(question)
+		except dbhelper.InvalidIdError:
+			question=Question(question="Could not find this question") #should ideally redirect to 404 page
 		#Values to pass to the View component
 		vals={'question':question,'answers':answers,'current_user':user}
 		#render to the template
@@ -81,7 +76,7 @@ class AnswerQuestion(webapp2.RequestHandler):
 			#	self.response.out.write("S") #write a flag indicating success
 			#except TransactionFailedError: #some bug here
 			#	self.response.out.write("F")
-			result=insertQuestionAnswered(user.user_id(),q_id,query.get().key)
+			result=insertQuestionAnswered(user,q_id,query.get().key)
 			self.response.out.write(result)
 		else:
 			#invalid answer given

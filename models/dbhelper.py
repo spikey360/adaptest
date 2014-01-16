@@ -39,10 +39,12 @@ def fetchAnswersOf(Question):
 		raise
 
 def fetchMoreDifficultQuestions(b):
-	return None
+	query=Question.query(Question.b>=b)
+	return query.fetch()
 
 def fetchLessDifficultQuestions(b):
-	return None
+	query=Question.query(Question.b<=b)
+	return query.fetch()
 
 def isCorrectAnswer(a_id):
 	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))
@@ -51,8 +53,8 @@ def isCorrectAnswer(a_id):
 	else:
 		raise InvalidIdError(a_id)
 		
-def update_or_Insert(userId, currQuestion, questionNumber, timer):
-	query=globalInstances.query(globalInstances.examinee==userId)
+def update_or_Insert(user, currQuestion, questionNumber, timer):
+	query=globalInstances.query(globalInstances.examinee==user)
 	if query.count()>=1:	# time for update
 		for currentUser in query:
 			currentUser.TotalQuestions=currQuestion
@@ -61,32 +63,32 @@ def update_or_Insert(userId, currQuestion, questionNumber, timer):
 			currentUser.put()
 	else:	# create a new one :)
 		instance=globalInstances()
-		instance.examinee=userId
+		instance.examinee=user
 		instance.TotalQuestions=currQuestion
 		instance.questionNumberToGive=questionNumber
 		instance.questionTimerEnd=timer
 		instance.put()
 	return
 
-def fetchGlobal(userId):
-	query=globalInstances.query(globalInstances.examinee==userId)
+def fetchGlobal(user):
+	query=globalInstances.query(globalInstances.examinee==user)
 	if query.count()==1:
 		return query.get()
 	else:
 		raise InvalidIdError(q_id)
 		
-def insertQuestionAnswered(userId,questionId,answerId):
+def insertQuestionAnswered(user,questionId,answerId):
 	aq=AnsweredQuestion()
 	#get the id of the Answer which has been selected
 	#query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.key==ndb.Key('Answer',int(answerId))))
-	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==userId,AnsweredQuestion.question==questionId))
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==questionId))
 	if query.count()>=1:
 		#answer already given!
 		#self.response.out.write("F")
 		return 'R' #for trying to 'R'eanswer
 	else:
 		#then a valid answer has been given for some question
-		aq.user=userId
+		aq.user=user
 		aq.question=questionId
 		aq.answer=answerId
 		try:

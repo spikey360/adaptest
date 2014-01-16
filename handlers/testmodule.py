@@ -76,7 +76,7 @@ class TestModule(webapp2.RequestHandler):
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		
-		currUser=fetchGlobal(user.user_id())
+		currUser=fetchGlobal(user)
 		questionNumberToGive=int(currUser.questionNumberToGive)
 		TotalQuestions=int(currUser.TotalQuestions)
 		TotalQuestions=TotalQuestions-1
@@ -89,7 +89,7 @@ class TestModule(webapp2.RequestHandler):
 			questionNumberToGive=questionNumberToGive+2
 		
 		questionTimerEnd=round(time.time()+30.5)
-		update_or_Insert(user.user_id(), str(TotalQuestions), str(questionNumberToGive), str(questionTimerEnd))
+		update_or_Insert(user, str(TotalQuestions), str(questionNumberToGive), str(questionTimerEnd))
 		time.sleep( 2 )
 		self.redirect("/test")
 	
@@ -98,7 +98,7 @@ class TestModule(webapp2.RequestHandler):
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		
-		currUser=fetchGlobal(user.user_id())
+		currUser=fetchGlobal(user)
 		questionNumberToGive=int(currUser.questionNumberToGive)
 		TotalQuestions=int(currUser.TotalQuestions)
 		questionTimerEnd=currUser.questionTimerEnd

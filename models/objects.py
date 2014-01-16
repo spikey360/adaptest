@@ -11,9 +11,9 @@ class User(ndb.Model):
 class Question(ndb.Model):
 	#the actual question in string
 	question=ndb.StringProperty()
-	#difficulty
-	a=ndb.FloatProperty()
 	#discrimination
+	a=ndb.FloatProperty()
+	#difficulty
 	b=ndb.FloatProperty()
 	#guessing
 	c=ndb.FloatProperty()
@@ -32,7 +32,7 @@ class Answer(ndb.Model):
 
 class AnsweredQuestion(ndb.Model):
 	#the user who answered
-	user=ndb.StringProperty()
+	user=ndb.UserProperty()
 	question=ndb.StringProperty()
 	#the answer the user gave
 	answer=ndb.KeyProperty(Answer)
@@ -54,7 +54,7 @@ class EstimationCredentials(ndb.Model):
 	estimatedTheta=ndb.FloatProperty()
 	
 class globalInstances(ndb.Model):
-	examinee=ndb.StringProperty()
+	examinee=ndb.UserProperty()
 	TotalQuestions=ndb.StringProperty()
 	questionNumberToGive=ndb.StringProperty()
 	questionTimerEnd=ndb.StringProperty()
