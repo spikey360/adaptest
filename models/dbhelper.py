@@ -3,6 +3,7 @@
 from models.objects import Question
 from models.objects import Answer
 from models.objects import globalInstances
+from models.objects import AnsweredQuestion
 from google.appengine.ext import ndb
 
 class InvalidIdError(Exception):
@@ -52,26 +53,50 @@ def isCorrectAnswer(a_id):
 	else:
 		raise InvalidIdError(a_id)
 		
-def update_or_Insert(userId, currQuestion, questionNumber, timer):
-	query=globalInstances.query(globalInstances.examinee==userId)
-	if query.count()>=1:	# time for update
+def update_or_Insert(user, currQuestion, questionNumber, timer):
+	query=globalInstances.query(globalInstances.examinee==user)
+	if query.count()>=1:	
+		# Globals already exist for the user, so update
 		for currentUser in query:
 			currentUser.TotalQuestions=currQuestion
 			currentUser.questionNumberToGive=questionNumber
 			currentUser.questionTimerEnd=timer
 			currentUser.put()
-	else:	# create a new one :)
+	else:
+		# Globals for the currentUser does not exist, so create a new one :)
 		instance=globalInstances()
-		instance.examinee=userId
+		instance.examinee=user
 		instance.TotalQuestions=currQuestion
 		instance.questionNumberToGive=questionNumber
 		instance.questionTimerEnd=timer
 		instance.put()
 	return
 
-def fetchGlobal(userId):
-	query=globalInstances.query(globalInstances.examinee==userId)
+def fetchGlobal(user):
+	#fetches all globals for the currentUser logged in/giving the test
+	query=globalInstances.query(globalInstances.examinee==user)
 	if query.count()==1:
 		return query.get()
 	else:
 		raise InvalidIdError(q_id)
+		
+def insertQuestionAnswered(user,questionId,answerId):
+	aq=AnsweredQuestion()
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==questionId))
+	if query.count()>=1:
+		#this means that the user has already answered the question with questionID, stop hem
+		return 'R' #for trying to 'R'eanswer
+	else:
+		#then a valid answer has been given for some question
+		aq.user=user
+		aq.question=questionId
+		aq.answer=answerId
+		try:
+			#write it to DB
+			aq.put() 
+			return 'S'
+		except TransactionFailedError: #some bug here
+			return 'F'
+	return
+
+

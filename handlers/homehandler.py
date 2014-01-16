@@ -20,6 +20,10 @@ class HomeHandler(webapp2.RequestHandler):
 	def __init__(self,request,response):
 		self.initialize(request,response)
 	def get(self):
+		#force the use to Login
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
 		#We are using a NoSQL DB so will be refraining fom writing GQL
 		#query for all Question objects in DB
 		query=Question.query()
@@ -33,12 +37,12 @@ class HomeHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(vals))
 		
 	def post(self):
-		#just reset the globals
+		#just reset the globals for the currentUser in the DB
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		else:
-			update_or_Insert(user.user_id(),str(10),str(0),str(round(time.time()+32.5)))
+			update_or_Insert(user,str(10),str(0),str(round(time.time()+30.5)))
 		time.sleep( 2 )
 		self.redirect("/test")
 	
