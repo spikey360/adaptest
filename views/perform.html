@@ -46,9 +46,7 @@ data.addRow([{{ x }},{{ y }}]);
 <div class="cont">
 <div class="nav">
 <div>
-<b>Precision</b><br>
-<b>a</b><input type="text" size="5" id="quanta_a" value='0.1'><b>b</b><input type="text" size="3" id="quanta_b" value='2.0'><br>
-<input type="button" onclick="estimateParams('{{ question.key.id() }}',0.1,2.0)" value="Estimate Parameters">
+<input type="button" onclick="fetchParams('{{ question.key.id() }}')" value="Estimate Parameters">
 <div id="result"></div>
 </div>
 <br>
