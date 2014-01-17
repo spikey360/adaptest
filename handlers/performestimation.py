@@ -3,6 +3,8 @@
 import webapp2
 import jinja2
 import os
+import models.dbhelper as dbhelper
+from models.dbhelper import InvalidIdError
 from models.objects import Question
 from models.objects import Answer
 from models.objects import AnsweredQuestion
@@ -14,17 +16,12 @@ jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("view
 
 class DistributionAnalyzer:
 	#TODO must ideally throw an exception for non-existent question
-	def analyzeQuestion(self,q_id):
-		query=Question.query(Question.key==ndb.Key('Question',q_id))
-		question=None
+	def analyzeQuestion(self,question):
 		answers=[]
-		if query.count()==1:
-			question=query.get()
-			query=Answer.query(Answer.question==ndb.Key('Question',question.key.id()))
-			answers=query.fetch()
-		else:
-			question=Question(question="Could not find this question")
-			answers=["..."]
+		try:
+			answers=dbhelper.fetchAnswersOf(question)
+		except dbhelper.InvalidIdError:
+			raise
 		#TODO must check answers size
 		
 		
@@ -53,7 +50,7 @@ class DistributionAnalyzer:
 		for j in range(0,10,1):
 			if totalAnswereeThetas[float(j)]!=0: #ensures we don't divide by zero
 				correctAnswereeThetas[float(j)]=correctAnswereeThetas[float(j)]/totalAnswereeThetas[float(j)]
-		return (question, answers, correctAnswereeThetas, totalAnswereeThetas)
+		return (answers, correctAnswereeThetas, totalAnswereeThetas)
 				
 		
 
@@ -65,7 +62,13 @@ class PerformEstimation(webapp2.RequestHandler):
 		#now the above map gives the p(theta) for the given question
 		#need to format data and send it to page
 		###############################################
-		(question,answers,correctAnswereeThetas,totalAnswereeThetas)=DistributionAnalyzer().analyzeQuestion(int(q_id))
+		question=None
+		try:
+			question=dbhelper.fetchQuestion(int(q_id))
+		except InvalidIdError:
+			self.response.out.write("No such page") #TODO replace with proper 404 code
+			return
+		(answers,correctAnswereeThetas,totalAnswereeThetas)=DistributionAnalyzer().analyzeQuestion(question)
 		vals={'question':question,'answers':answers,'correctDist':correctAnswereeThetas,'current_user':user}
 		template=jinjaEnv.get_template("perform.html")
 		self.response.out.write(template.render(vals))
