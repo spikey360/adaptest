@@ -5,18 +5,10 @@ import jinja2
 import os
 import time
 
-from models.objects import Question
-from models.objects import Answer
-from models.objects import AnsweredQuestion
-from models.objects import EstimationCredentials
-from models.objects import globalInstances
+#import everthing :P cuz soon , we are gonna need more than a few of the dbhelper functions 
+from models.dbhelper import *
 
-from models.dbhelper import fetchGlobal
-from models.dbhelper import update_or_Insert
-
-from datetime import datetime
 from google.appengine.api import users
-from google.appengine.ext import db
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
@@ -58,12 +50,8 @@ class TestModule(webapp2.RequestHandler):
 			vals=question.split(",")
 			qNo=str(questionNumber+1)
 			CorrectOption=str(int(float(vals[5])))
-			
-			#make the vals
 			vals={'title':qNo,'endTime':questionTimerEnd,'question':vals[0],'answer1':vals[1],'answer2':vals[2],'answer3':vals[3],'answer4':vals[4],'correctOption':CorrectOption,'current_user':user}
-			#render to the template
 			template=jinjaEnv.get_template('testQuestion.html')
-			#write it to the handler's output stream
 			self.response.out.write(template.render(vals))
 		else:
 			htmlSnippet='<form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'
