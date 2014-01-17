@@ -3,9 +3,6 @@
 import webapp2
 import jinja2
 import os
-import random
-import cgi
-import logging
 import time
 
 from models.objects import Question
@@ -23,58 +20,11 @@ from google.appengine.ext import db
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
-QUESTION_PAGE_HTML = """\
-<html>
-	<head>
-		<title>Question Number - %s</title>
-		<script>
-		function clickOn30Sec()
-		{
-			//end epoch
-			var endEpoch=%s;
-			//current epoch
-			
-			// get tag element
-			var countdown = document.getElementById('txt');
-			// update the tag with id "txt" every 1 second
-			setInterval(function() 
-				{
-				var currentEpoch=parseInt((new Date).getTime()/1000);
-				var secondsLeft=endEpoch-currentEpoch;
-				if(secondsLeft>=0)
-					countdown.innerHTML = "Time Left : "+secondsLeft+"s";
-				else
-					document.getElementById('submitBtn').click();
-				},1000);
-		}
-		</script>
-	</head>
-	<body onload="clickOn30Sec()">
-		<form id="myForm" action="/test" method="post">
-			<div>
-				<h1> %s </h1>
-				<input type="radio" name="option" value="1">%s<br>
-				<input type="radio" name="option" value="2">%s<br>
-				<input type="radio" name="option" value="3">%s<br>
-				<input type="radio" name="option" value="4">%s<br>
-				<input type="hidden" name="answer" value="%s"/>
-			</div> 
-			<br><br>
-			<div id="txt"></div>
-			<div>
-				<input id="submitBtn" type="submit" value="Submit">
-			</div>    
-		</form>
-	</body>
-</html>
-"""
-
 class TestModule(webapp2.RequestHandler):
 	def post(self):
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
-		
 		currUser=fetchGlobal(user)
 		questionNumberToGive=int(currUser.questionNumberToGive)
 		TotalQuestions=int(currUser.TotalQuestions)
@@ -86,7 +36,6 @@ class TestModule(webapp2.RequestHandler):
 				questionNumberToGive=questionNumberToGive+1
 		else:
 			questionNumberToGive=questionNumberToGive+2
-		
 		questionTimerEnd=round(time.time()+30.5)
 		update_or_Insert(user, str(TotalQuestions), str(questionNumberToGive), str(questionTimerEnd))
 		time.sleep( 2 )
@@ -96,7 +45,6 @@ class TestModule(webapp2.RequestHandler):
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
-		
 		currUser=fetchGlobal(user)
 		questionNumberToGive=int(currUser.questionNumberToGive)
 		TotalQuestions=int(currUser.TotalQuestions)
@@ -110,6 +58,13 @@ class TestModule(webapp2.RequestHandler):
 			vals=question.split(",")
 			qNo=str(questionNumber+1)
 			CorrectOption=str(int(float(vals[5])))
-			self.response.write(QUESTION_PAGE_HTML % (qNo,questionTimerEnd,vals[0],vals[1],vals[2],vals[3],vals[4],CorrectOption))
+			
+			#make the vals
+			vals={'title':qNo,'endTime':questionTimerEnd,'question':vals[0],'answer1':vals[1],'answer2':vals[2],'answer3':vals[3],'answer4':vals[4],'correctOption':CorrectOption,'current_user':user}
+			#render to the template
+			template=jinjaEnv.get_template('testQuestion.html')
+			#write it to the handler's output stream
+			self.response.out.write(template.render(vals))
 		else:
-			self.response.write("You Have finished giving the test, kindly press Take Test Button to redo the test!!!")
+			htmlSnippet='<form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'
+			self.response.write("You Have finished giving the test, kindly press Take Test Button to redo the test!!!<br><br>%s"%htmlSnippet)
