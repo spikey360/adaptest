@@ -55,8 +55,8 @@ def isCorrectAnswer(a_id):
 		
 def update_or_Insert(user, currQuestion, questionNumber, timer):
 	query=globalInstances.query(globalInstances.examinee==user)
-	if query.count()>=1:	
-		# Globals already exist for the user, so update
+	
+	if query.count()>=1:	# time for update
 		for currentUser in query:
 			currentUser.TotalQuestions=currQuestion
 			currentUser.questionNumberToGive=questionNumber
