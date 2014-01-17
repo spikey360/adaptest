@@ -8,6 +8,14 @@ from models.dbhelper import InvalidIdError
 from handlers.performestimation import DistributionAnalyzer
 from google.appengine.ext import ndb
 
+start_a=0.0
+end_a=1.0
+start_b=0.0
+end_b=10.0
+#interval periods, increases/decreases precision of calculation
+interval_a=0.1
+interval_b=0.1
+
 def calculateP(theta,a,b,c):
 	k=-a*(theta-b)
 	P=c+(1.0-c)/(1.0+math.exp(k))
@@ -27,17 +35,37 @@ def calculateKhiSquare(question,a,b,c):
 		khiSquare=khiSquare+calculateKhiTerm(total_distribution[x],x,y,a,b,c)
 	return khiSquare
 
+def calculateParameters(question):
+	global start_a, end_a, start_b, end_b, interval_a, interval_b
+	min_a=start_a
+	min_b=start_b
+	a=start_a
+	b=start_b
+	c=0.25
+	min_yet=math.sqrt(calculateKhiSquare(question,a,b,c))
+	steps_a=(end_a-start_a)/interval_a
+	steps_b=(end_b-start_b)/interval_b
+	for i in range(int(steps_a)):
+		b=0.0
+		for j in range(int(steps_b)):
+			khi=math.sqrt(calculateKhiSquare(question,a,b,c))
+			if khi<min_yet:
+				min_yet=khi
+				min_a=a
+				min_b=b
+			b+=interval_b
+		a+=interval_a
+	return (min_a,min_b,c)
+
 class GetKhi(webapp2.RequestHandler):
 	def get(self,q_id):
 		q_key=int(q_id)
-		a=float(self.request.get('a'))
-		b=float(self.request.get('b'))
 		c=0.25 #will have to be made flexible
-		ks=0.0
+		calc_a=calc_b=calc_c=0.0
 		question=None
 		try:
 			question=dbhelper.fetchQuestion(q_key)
-			ks=calculateKhiSquare(question,a,b,c)
+			(calc_a,calc_b,calc_c)=calculateParameters(question)
 		except InvalidIdError:
 			self.response.out.write("F") #a 404 page should not be given here
-		self.response.out.write("%f"%ks)
+		self.response.out.write("%f,%f,%f"%(calc_a,calc_b,calc_c))
