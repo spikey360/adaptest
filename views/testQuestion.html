@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>Adaptest - Test Question :{{ title }}</title>
+<link rel="stylesheet" type="text/css" href="/style/style.css"/>
+<script src="/js/submit.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script>
+var freeze=0
+function clickOn30Sec()
+{
+	//end epoch
+	var endEpoch={{ endTime }};
+	//current epoch
+	
+	// get tag element
+	var countdown = document.getElementById('txt');
+	// update the tag with id "txt" every 1 second
+	setInterval(function() 
+		{
+		var currentEpoch=parseInt((new Date).getTime()/1000);
+		var secondsLeft=endEpoch-currentEpoch;
+		if(secondsLeft>=0)
+			if (freeze==0)
+				countdown.innerHTML = "Time Left : "+secondsLeft+"s";
+			else
+				countdown.innerHTML = "";
+		else
+			document.getElementById('submitBtn').click();
+		},1000);
+}
+</script>
+</head>
+<body onload="clickOn30Sec()">
+<div class="container">
+<div class="banner">Adaptest</div>
+<div class="subbanner">Simple Adaptive Testing</div>
+<div class="cont">
+<div class="nav">
+<br>
+</div>
+Choose the correct Option <div id="txt" align="right"></div>
+<div>
+<table>
+<form id="myForm" action="/test" method="post">
+	<div>
+		<tr><td></td><td><b>{{ question }}</b></td></tr>
+		<!--
+		<input type="radio" name="option" value="1">%s<br>
+		<input type="radio" name="option" value="2">%s<br>
+		<input type="radio" name="option" value="3">%s<br>
+		<input type="radio" name="option" value="4">%s<br>
+		<input type="hidden" name="answer" value="%s"/>
+		-->
+		<!--{% for answer in answers %}
+		<tr><td></td><td></td></tr>
+		<tr><td><input type="radio" name="option" value="'{{ answer.key.id() }}"></td><td>{{ answer }}</td></tr>
+		{% endfor %}-->
+		<tr><td></td><td></td></tr>
+		<tr><td><input type="radio" name="option" value="1"></td><td>{{ answer1 }}</td></tr>
+		<tr><td><input type="radio" name="option" value="2"></td><td>{{ answer2 }}</td></tr>
+		<tr><td><input type="radio" name="option" value="3"></td><td>{{ answer3 }}</td></tr>
+		<tr><td><input type="radio" name="option" value="4"></td><td>{{ answer4 }}</td></tr>
+		<input type="hidden" name="answer" value="'{{ correctOption }}"/>
+	</div> 
+	<br><br>
+	<div>
+		<tr><td></td><td><input id="submitBtn" type="submit" value="Submit"></td></tr>
+	</div>    
+</form>
+
+</table>
+</div>
+</div>
+<div class="footer">
+<div align="center">Logged in as <b>{{ current_user }}</b></div>
+<div align="center">All rights reserved &copy; 2013</div>
+</div>
+</div>
+</body>
+</html>
