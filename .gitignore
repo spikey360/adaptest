@@ -1,4 +1,5 @@
 index.yaml
+*.rar
 *.swp
 *~
 *.pyc
