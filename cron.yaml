@@ -1,0 +1,5 @@
+cron:
+- description: Twice daily parameter estimation
+  url: /estim/admin/calculateparams
+  schedule: every 12 hours
+
