@@ -14,7 +14,7 @@ class ParameterCalculatorHandler(webapp2.RequestHandler):
 		#taskqueue.add(url='/estim/admin/tasks/calculateparams',params={'qid':q_id})
 		all_questions=Question.query().fetch()
 		for question in all_questions:
-			taskqueue.add(url='/estim/admin/tasks/calculateparams',params={'qid':str(question.key.id())})
+			taskqueue.add(queue_name='estimatorQueue',url='/estim/admin/tasks/calculateparams',params={'qid':str(question.key.id())})
 		
 	def get(self):
 		#self.response.out.write("POST with qid to start task")
