@@ -15,7 +15,6 @@
     var data = new google.visualization.DataTable();
     data.addColumn('number', 'X');
     data.addColumn('number', 'θ');
-    //data.addColumn('number', 'Shape 2');
 {% for x,y in correctDist.items() %}
 {% if y!=0.0 %}
 data.addRow([{{ x }},{{ y }}]);
@@ -46,8 +45,8 @@ data.addRow([{{ x }},{{ y }}]);
 <div class="cont">
 <div class="nav">
 <div>
-<input type="button" onclick="fetchParams('{{ question.key.id() }}')" value="Estimate Parameters">
-<div id="result"></div>
+<input type="button" onclick="fetchParams('{{ question.key.id() }}')" value="Re-estimate Parameters">
+<div id="result"><b>a</b>:{{question.a}}, <b>b</b>:{{question.b}}, <b>c</b>:{{question.c}}</div>
 </div>
 <br>
 <table>
