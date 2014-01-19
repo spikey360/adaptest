@@ -72,6 +72,12 @@ class GetKhi(webapp2.RequestHandler):
 			question=dbhelper.fetchQuestion(q_key)
 			(answers,correct_distribution,total_distribution)=DistributionAnalyzer().analyzeQuestion(question)
 			(calc_a,calc_b,calc_c)=calculateParameters()
+			question.a=calc_a
+			question.b=calc_b
+			question.c=calc_c
 		except InvalidIdError:
 			self.response.out.write("F") #a 404 page should not be given here
+			return
+		if question is not None:
+			question.put()
 		self.response.out.write("%f,%f,%f"%(calc_a,calc_b,calc_c))
