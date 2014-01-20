@@ -30,7 +30,7 @@ class HomeHandler(webapp2.RequestHandler):
 		#fetch them
 		questions=query.fetch()
 		#Values we will be passing to the view (of MVC)
-		vals={'questions':questions}
+		vals={'questions':questions,'current_user':user}
 		#get the page template suitable for this page
 		template=jinjaEnv.get_template('index.html')
 		#render the values into the template and put it in the output stream of the RequestHandler
