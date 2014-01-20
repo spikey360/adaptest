@@ -10,28 +10,40 @@
       google.load('visualization', '1', {packages: ['corechart']});
 </script>
 <script type="text/javascript">
-      function drawVisualization() {
-    // Create and populate the data table.
-    var data = new google.visualization.DataTable();
-    data.addColumn('number', 'X');
-    data.addColumn('number', 'θ');
+
+function calcP(theta){
+a={{question.a}};
+b={{question.b}};
+c={{question.c}};
+k=-a*(theta-b);
+P=c+(1.0-c)/(1.0+Math.exp(k));
+return P;
+}
+
+function drawVisualization() {
+// Create and populate the data table.
+var data = new google.visualization.DataTable();
+data.addColumn('number', 'X');
+data.addColumn('number', 'θ');
+data.addColumn('number','P(θ)');
+for(i=0.0;i<=10.0;i+=0.1)
+	data.addRow([i,null,calcP(i)]);
 {% for x,y in correctDist.items() %}
 {% if y!=0.0 %}
-data.addRow([{{ x }},{{ y }}]);
+data.addRow([{{ x }},{{ y }},null]);
 {% endif %}
 {% endfor %}
     
-
     // Create and draw the visualization.
     var chart = new google.visualization.ScatterChart(
         document.getElementById('visualization'));
     chart.draw(data, {title: 'Correct answer distribution across θ',
                       width: 600, height: 400,
                       backgroundColor: "#0771b8",
-                      colors:['white',"#0771b8"],
+                      colors:['white','#222222',"#0771b8"],
                       fontName: 'Cantarell',
-                      vAxis: {title: "θ", titleTextStyle: {color: "white"}},
-                      hAxis: {title: "p(θ)", titleTextStyle: {color: "white"}}}
+                      vAxis: {title: "p(θ)", titleTextStyle: {color: "white"},maxValue:1.01,minValue:0.0},
+                      hAxis: {title: "θ", titleTextStyle: {color: "white"},maxValue:10.0,minValue:0.0}}
               );
 }
 
