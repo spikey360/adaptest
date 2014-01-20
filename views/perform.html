@@ -27,10 +27,10 @@ data.addColumn('number', 'X');
 data.addColumn('number', 'θ');
 data.addColumn('number','P(θ)');
 for(i=0.0;i<=10.0;i+=0.1)
-	data.addRow([i,null,calcP(i)]);
+	data.addRow([i,calcP(i),null]);
 {% for x,y in correctDist.items() %}
 {% if y!=0.0 %}
-data.addRow([{{ x }},{{ y }},null]);
+data.addRow([{{ x }},null,{{ y }}]);
 {% endif %}
 {% endfor %}
     
@@ -40,8 +40,9 @@ data.addRow([{{ x }},{{ y }},null]);
     chart.draw(data, {title: 'Correct answer distribution across θ',
                       width: 600, height: 400,
                       backgroundColor: "#0771b8",
-                      colors:['white','#222222',"#0771b8"],
+                      colors:['#222222','white',"#0771b8"],
                       fontName: 'Cantarell',
+                      series:[{0:{pointSize:1,visibleInLegend: false},1:{pointSize:3}}],
                       vAxis: {title: "p(θ)", titleTextStyle: {color: "white"},maxValue:1.01,minValue:0.0},
                       hAxis: {title: "θ", titleTextStyle: {color: "white"},maxValue:10.0,minValue:0.0}}
               );
