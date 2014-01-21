@@ -1,4 +1,4 @@
-application: simpadaptest
+application: s~simpadaptest
 version: 1
 runtime: python27
 api_version: 1
@@ -25,3 +25,5 @@ libraries:
 - name: jinja2
   version: latest
 
+builtins:
+- remote_api: on
