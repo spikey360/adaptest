@@ -56,5 +56,13 @@ class EstimationCredentials(ndb.Model):
 class globalInstances(ndb.Model):
 	examinee=ndb.UserProperty()
 	TotalQuestions=ndb.StringProperty()
+	#this question number will contain the id of the question to give so it is quite similar to number 
 	questionNumberToGive=ndb.StringProperty()
 	questionTimerEnd=ndb.StringProperty()
+	theta=ndb.FloatProperty()
+	
+class AnsweredQuestionTestModule(ndb.Model):
+	examinee=ndb.UserProperty()
+	question=ndb.StringProperty()
+	answer=ndb.StringProperty()
+	u=ndb.FloatProperty()

@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-from models.objects import Question
-from models.objects import Answer
-from models.objects import globalInstances
-from models.objects import AnsweredQuestion
+from models.objects import *
 from google.appengine.ext import ndb
 
 class InvalidIdError(Exception):
@@ -39,8 +36,14 @@ def fetchAnswersOf(Question):
 		raise
 
 def fetchMoreDifficultQuestions(b):
-	query=Question.query(Question.b>=b)
+	query=Question.query(Question.b>=b).order(Question.b)
 	return query.fetch()
+
+def fetchMoreDifficultQuestion(b):
+	query=fetchMoreDifficultQuestions(b)
+	for question in query:
+		return question.key.id()
+	return false
 
 def fetchLessDifficultQuestions(b):
 	query=Question.query(Question.b<=b)
@@ -53,7 +56,7 @@ def isCorrectAnswer(a_id):
 	else:
 		raise InvalidIdError(a_id)
 		
-def update_or_Insert(user, currQuestion, questionNumber, timer):
+def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta):
 	query=globalInstances.query(globalInstances.examinee==user)
 	
 	if query.count()>=1:	# time for update
@@ -61,6 +64,7 @@ def update_or_Insert(user, currQuestion, questionNumber, timer):
 			currentUser.TotalQuestions=currQuestion
 			currentUser.questionNumberToGive=questionNumber
 			currentUser.questionTimerEnd=timer
+			currentUser.theta=currentTheta
 			currentUser.put()
 	else:
 		# Globals for the currentUser does not exist, so create a new one :)
@@ -69,6 +73,7 @@ def update_or_Insert(user, currQuestion, questionNumber, timer):
 		instance.TotalQuestions=currQuestion
 		instance.questionNumberToGive=questionNumber
 		instance.questionTimerEnd=timer
+		instance.theta=currentTheta
 		instance.put()
 	return
 
@@ -98,5 +103,39 @@ def insertQuestionAnswered(user,questionId,answerId):
 		except TransactionFailedError: #some bug here
 			return 'F'
 	return
+	
+def update_or_Insert_QuestionTestModule(question,answer,user,u):
+	query=AnsweredQuestionTestModule.query(ndb.AND(AnsweredQuestionTestModule.examinee==user,AnsweredQuestionTestModule.question==question))
+	
+	if query.count()>=1:	# time for update
+		for currentUser in query:
+			currentUser.answer=answer
+			currentUser.u=u
+			currentUser.put()
+	else:
+		# Globals for the currentUser does not exist, so create a new one :)
+		instance=AnsweredQuestionTestModule()
+		instance.examinee=user
+		instance.question=question
+		instance.answer=answer
+		instance.u=u
+		instance.put()
+	return
 
-
+def fetchAllQuestionsParamsTestModule(user):
+	query=AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user)
+	params=[]
+	if query.count()>=2:	#the user must answer atleast 2 questions :)
+		for instance in query:
+			currentQuestion=instance.question
+			question=fetchQuestion(int(currentQuestion))
+			a=(question.a)
+			b=(question.b)
+			c=(question.c)
+			params.append(a)
+			params.append(b)
+			params.append(c)
+			params.append(instance.u)
+	else:
+		return false
+	return params
