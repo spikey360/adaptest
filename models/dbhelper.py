@@ -85,9 +85,9 @@ def fetchGlobal(user):
 	else:
 		raise InvalidIdError(q_id)
 		
-def insertQuestionAnswered(user,questionId,answerId):
+def insertQuestionAnswered(user,questionId,answerId,evaluation=False):
 	aq=AnsweredQuestion()
-	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==questionId))
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==questionId,AnsweredQuestion.evaluation==evaluation))
 	if query.count()>=1:
 		#this means that the user has already answered the question with questionID, stop hem
 		return 'R' #for trying to 'R'eanswer
@@ -96,6 +96,7 @@ def insertQuestionAnswered(user,questionId,answerId):
 		aq.user=user
 		aq.question=questionId
 		aq.answer=answerId
+		aq.evaluation=evaluation
 		try:
 			#write it to DB
 			aq.put() 
