@@ -8,25 +8,20 @@
 var freeze=0
 function clickOn30Sec()
 {
-	//end epoch
-	var endEpoch={{ endTime }};
-	//current epoch
-	
-	// get tag element
-	var countdown = document.getElementById('txt');
-	// update the tag with id "txt" every 1 second
+	var endEpoch={{ endTime }};	//received from server :)
+	var countdown = document.getElementById('txt');	// update the tag with id "txt" every 1 second aka naive timer :)
 	setInterval(function() 
-		{
-		var currentEpoch=parseInt((new Date).getTime()/1000);
-		var secondsLeft=endEpoch-currentEpoch;
-		if(secondsLeft>=0)
-			if (freeze==0)
-				countdown.innerHTML = "Time Left : "+secondsLeft+"s";
-			else
-				countdown.innerHTML = "";
+	{
+	var currentEpoch=parseInt((new Date).getTime()/1000);
+	var secondsLeft=endEpoch-currentEpoch;
+	if(secondsLeft>=0)
+		if (freeze==0)
+			countdown.innerHTML = "Time Left : "+secondsLeft+"s";
 		else
-			document.getElementById('submitBtn').click();
-		},1000);
+			countdown.innerHTML = "";
+	else
+		document.getElementById('submitBtn').click();
+	},1000);
 }
 </script>
 </head>
@@ -44,23 +39,11 @@ Choose the correct Option <div id="txt" align="right"></div>
 <form id="myForm" action="/test" method="post">
 	<div>
 		<tr><td></td><td><b>{{ question }}</b></td></tr>
-		<!--
-		<input type="radio" name="option" value="1">%s<br>
-		<input type="radio" name="option" value="2">%s<br>
-		<input type="radio" name="option" value="3">%s<br>
-		<input type="radio" name="option" value="4">%s<br>
-		<input type="hidden" name="answer" value="%s"/>
-		-->
-		<!--{% for answer in answers %}
+		{% for answer in answers %}
 		<tr><td></td><td></td></tr>
-		<tr><td><input type="radio" name="option" value="'{{ answer.key.id() }}"></td><td>{{ answer }}</td></tr>
-		{% endfor %}-->
+		<tr><td><input type="radio" name="option" value="{{ answer.key.id() }}"></td><td>{{ answer.answer }}</td></tr>
+		{% endfor %}
 		<tr><td></td><td></td></tr>
-		<tr><td><input type="radio" name="option" value="1"></td><td>{{ answer1 }}</td></tr>
-		<tr><td><input type="radio" name="option" value="2"></td><td>{{ answer2 }}</td></tr>
-		<tr><td><input type="radio" name="option" value="3"></td><td>{{ answer3 }}</td></tr>
-		<tr><td><input type="radio" name="option" value="4"></td><td>{{ answer4 }}</td></tr>
-		<input type="hidden" name="answer" value="'{{ correctOption }}"/>
 	</div> 
 	<br><br>
 	<div>

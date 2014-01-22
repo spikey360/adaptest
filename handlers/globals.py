@@ -1,6 +1,4 @@
-#globals for my program :)
+# a simple global file which can be used if/when required by importing :) 
+# all the previous variables in this file has been deprecated!
 
-
-TotalQuestions=10
-questionNumberToGive=0
-questionTimerEnd=0
+firstQuestion='5838406743490560'
