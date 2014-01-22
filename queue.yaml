@@ -1,0 +1,4 @@
+queue:
+- name: estimatorQueue
+  rate: 25/s
+  bucket_size: 50
