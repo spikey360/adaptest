@@ -10,41 +10,29 @@
       google.load('visualization', '1', {packages: ['corechart']});
 </script>
 <script type="text/javascript">
-
-function calcP(theta){
-a={{question.a}};
-b={{question.b}};
-c={{question.c}};
-k=-a*(theta-b);
-P=c+(1.0-c)/(1.0+Math.exp(k));
-return P;
-}
-
-function drawVisualization() {
-// Create and populate the data table.
-var data = new google.visualization.DataTable();
-data.addColumn('number', 'X');
-data.addColumn('number', 'P(θ)');
-data.addColumn('number','p(θ)');
-for(i=0.0;i<=10.0;i+=0.1)
-	data.addRow([i,calcP(i),null]);
+      function drawVisualization() {
+    // Create and populate the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('number', 'X');
+    data.addColumn('number', 'θ');
+    //data.addColumn('number', 'Shape 2');
 {% for x,y in correctDist.items() %}
 {% if y!=0.0 %}
-data.addRow([{{ x }},null,{{ y }}]);
+data.addRow([{{ x }},{{ y }}]);
 {% endif %}
 {% endfor %}
     
+
     // Create and draw the visualization.
     var chart = new google.visualization.ScatterChart(
         document.getElementById('visualization'));
     chart.draw(data, {title: 'Correct answer distribution across θ',
                       width: 600, height: 400,
                       backgroundColor: "#0771b8",
-                      colors:['#222222','white',"#0771b8"],
+                      colors:['white',"#0771b8"],
                       fontName: 'Cantarell',
-                      series:[{0:{pointSize:1,visibleInLegend: false},1:{pointSize:3}}],
-                      vAxis: {title: "p(θ)", titleTextStyle: {color: "white"},maxValue:1.01,minValue:0.0},
-                      hAxis: {title: "θ", titleTextStyle: {color: "white"},maxValue:10.0,minValue:0.0}}
+                      vAxis: {title: "θ", titleTextStyle: {color: "white"}},
+                      hAxis: {title: "p(θ)", titleTextStyle: {color: "white"}}}
               );
 }
 
@@ -54,12 +42,12 @@ data.addRow([{{ x }},null,{{ y }}]);
 <body>
 <div class="container">
 <div class="banner"><a href="/" class="jump">Adaptest</a></div>
-<div class="subbanner"><a class="jump" href="/estim/admin/performance">Administration</a></div>
+<div class="subbanner"><a class="jump" href="/estim/admin/performance">Performance</a></div>
 <div class="cont">
 <div class="nav">
 <div>
-<input type="button" onclick="fetchParams('{{ question.key.id() }}')" value="Re-estimate Parameters">
-<div id="result"><b>a</b>:{{question.a}}, <b>b</b>:{{question.b}}, <b>c</b>:{{question.c}}</div>
+<input type="button" onclick="fetchParams('{{ question.key.id() }}')" value="Estimate Parameters">
+<div id="result"></div>
 </div>
 <br>
 <table>
@@ -75,11 +63,8 @@ data.addRow([{{ x }},null,{{ y }}]);
 </div>
 </div>
 <div class="footer">
-
 <div align="center">Logged in as <b>{{ current_user }}</b></div>
-<div align="center">All rights reserved &copy;2013</div>
-
-
+<div align="center">All rights reserved &copy; 2013</div>
 </div>
 </div>
 </body>

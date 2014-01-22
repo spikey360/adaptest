@@ -3,6 +3,8 @@
 from models.objects import *
 from google.appengine.ext import ndb
 
+import logging
+
 class InvalidIdError(Exception):
 	def __init__(self,q_id):
 		self.q_id=q_id
@@ -39,11 +41,24 @@ def fetchMoreDifficultQuestions(b):
 	query=Question.query(Question.b>=b).order(Question.b)
 	return query.fetch()
 
-def fetchMoreDifficultQuestion(b):
+def fetchMoreDifficultQuestion(b,user):
 	query=fetchMoreDifficultQuestions(b)
 	for question in query:
-		return question.key.id()
-	return false
+		if AlreadyMarked(user,question.key.id()) == False:
+			return question.key.id()
+	return False
+
+def AlreadyMarked(user,question):
+	query=AnsweredQuestionTestModule.query(ndb.AND(AnsweredQuestionTestModule.examinee==user,AnsweredQuestionTestModule.question==str(question)))
+	if query.count()==1:	#the user has already answered the given question
+		return True
+	else:
+		return False
+
+def clearUserTestAnswers(user):
+	delete_keys = AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user).fetch(keys_only=True)
+	ndb.delete_multi(delete_keys)
+	return
 
 def fetchLessDifficultQuestions(b):
 	query=Question.query(Question.b<=b)
@@ -137,5 +152,5 @@ def fetchAllQuestionsParamsTestModule(user):
 			params.append(c)
 			params.append(instance.u)
 	else:
-		return false
+		return params
 	return params
