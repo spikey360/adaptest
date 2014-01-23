@@ -10,20 +10,10 @@
 <div class="nav"><a href="/estim/admin/performance" class="jump">Performance</a>|<a href="/estim/admin/add" class="jump">Add a question</a></div>
 <div class="cont">
 <div class="nav">
-
 </div>
-<br>
-<ul>
-{% for q in questions %}
-<li><a href="/estim/answer/{{ q.key.id() }}">{{ q.question }}</a></li>
-{% endfor %}
-<br>
-<form action="/" method="post">
-	<div>
-		<input type="submit" value="Take Test">
-	</div>    
-</form>
-</ul>
+{{ message }}
+
+
 </div>
 <div class="footer">
 <div align="center">All rights reserved &copy; 2013</div>

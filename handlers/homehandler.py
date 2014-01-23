@@ -7,8 +7,8 @@ import time
 import globals
 
 
-from models.objects import Question
-from models.dbhelper import update_or_Insert
+from models.objects import *
+from models.dbhelper import *
 from google.appengine.api import users
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
@@ -31,7 +31,7 @@ class HomeHandler(webapp2.RequestHandler):
 		#fetch them
 		questions=query.fetch()
 		#Values we will be passing to the view (of MVC)
-		vals={'questions':questions,'current_user':user}
+		vals={'questions':questions}
 		#get the page template suitable for this page
 		template=jinjaEnv.get_template('index.html')
 		#render the values into the template and put it in the output stream of the RequestHandler
@@ -43,6 +43,7 @@ class HomeHandler(webapp2.RequestHandler):
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		else:
+			clearUserTestAnswers(user)
 			update_or_Insert(user,str(10), str(globals.firstQuestion) ,str(round(time.time()+30.5)),1.0)
 		time.sleep( 2 )
 		self.redirect("/test")
