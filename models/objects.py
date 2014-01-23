@@ -31,6 +31,8 @@ class Answer(ndb.Model):
 	correct=ndb.BooleanProperty()
 
 class AnsweredQuestion(ndb.Model):
+	#flag: true=Ability Evaluation answer, false=Parameter estimation Answer
+	evaluation=ndb.BooleanProperty();
 	#the user who answered
 	user=ndb.UserProperty()
 	question=ndb.StringProperty()
