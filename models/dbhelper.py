@@ -106,17 +106,18 @@ def insertQuestionAnswered(user,questionId,answerId,evaluation=False):
 	return
 	
 def update_or_Insert_QuestionTestModule(question,answer,user,u):
-	query=AnsweredQuestionTestModule.query(ndb.AND(AnsweredQuestionTestModule.examinee==user,AnsweredQuestionTestModule.question==question))
+	#u is not required
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==question,AnsweredQuestion.evaluation=True)) #this is called only during the ability evaluation phase
 	
 	if query.count()>=1:	# time for update
 		for currentUser in query:
 			currentUser.answer=answer
-			currentUser.u=u
+			#currentUser.u=isCorrectAnswer(answer.key.id()) #not necessary, redundant
 			currentUser.put()
 	else:
 		# Globals for the currentUser does not exist, so create a new one :)
-		instance=AnsweredQuestionTestModule()
-		instance.examinee=user
+		instance=AnsweredQuestion()
+		instance.user=user
 		instance.question=question
 		instance.answer=answer
 		instance.u=u
