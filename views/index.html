@@ -1,7 +1,10 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 <title>Adaptest - Simple Adaptive Testing</title>
-<link rel="stylesheet" type="text/css" href="/style/style.css"/>
+<link rel="stylesheet" type="text/css" href="/style/style.css" />
 </head>
 <body>
 <div class="container">
@@ -12,19 +15,28 @@
 <div class="nav">
 <form action="/" method="post">
 	<div>
-		<input type="submit" value="Take Test">
+		<input type="submit" value="Take Test" />
 	</div>    
 </form>
 </div>
-<br>
+<br />
 <ul>
 {% for q in questions %}
 <li><a href="/estim/answer/{{ q.key.id() }}">{{ q.question }}</a></li>
 {% endfor %}
-<br>
 </ul>
 </div>
-<br><br><br><br><br><br><br><br><br><br><br>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
 <div class="footer">
 <div align="center">All rights reserved &copy; 2013</div>
 </div>
