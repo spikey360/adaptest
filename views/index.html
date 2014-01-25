@@ -7,10 +7,14 @@
 <div class="container">
 <div class="banner"><a href="/" class="jump">Adaptest</a></div>
 <div class="subbanner">Simple Adaptive Testing</div>
-<div class="nav"><a href="/estim/admin/performance" class="jump">Performance</a>|<a href="/estim/admin/add" class="jump">Add a question</a></div>
+<div class="nav"><a href="/estim/admin/performance" class="jump">Administration</a>|<a href="/estim/admin/add" class="jump">Add a question</a></div>
 <div class="cont">
 <div class="nav">
-
+<form action="/" method="post">
+	<div>
+		<input type="submit" value="Take Test">
+	</div>    
+</form>
 </div>
 <br>
 <ul>
@@ -18,13 +22,9 @@
 <li><a href="/estim/answer/{{ q.key.id() }}">{{ q.question }}</a></li>
 {% endfor %}
 <br>
-<form action="/" method="post">
-	<div>
-		<input type="submit" value="Take Test">
-	</div>    
-</form>
 </ul>
 </div>
+<br><br><br><br><br><br><br><br><br><br><br>
 <div class="footer">
 <div align="center">All rights reserved &copy; 2013</div>
 </div>
