@@ -3,3 +3,5 @@ index.yaml
 *.swp
 *~
 *.pyc
+bulkloader-*
+
