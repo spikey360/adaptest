@@ -19,6 +19,13 @@ def fetchQuestion(q_id):
 		return query.get()
 	else:
 		raise InvalidIdError(q_id)
+def getAnswer(a_id):
+	#fetch it
+	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))
+	if query.count()==1:
+		return query.get()
+	else:
+		raise InvalidIdError(a_id)
 
 def fetchAnswers(q_id):
 	question=None
@@ -120,26 +127,20 @@ def insertQuestionAnswered(user,questionId,answerId,evaluation=False):
 			return 'F'
 	return
 	
-def update_or_Insert_QuestionTestModule(question,answer,user,u):
-	query=AnsweredQuestionTestModule.query(ndb.AND(AnsweredQuestionTestModule.examinee==user,AnsweredQuestionTestModule.question==question))
+def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
+	#StringProperty,StringProperty,UserProperty,dontcare
+	question=None
+	answer=None
+	try:
+		question=fetchQuestion(int(q_id_str))
+		answer=getAnswer(int(a_id_str))
+	except InvalidIdError:
+		raise
+	return insertQuestionAnswered(user,question.key,answer.key,evaluation=True)
 	
-	if query.count()>=1:	# time for update
-		for currentUser in query:
-			currentUser.answer=answer
-			currentUser.u=u
-			currentUser.put()
-	else:
-		# Globals for the currentUser does not exist, so create a new one :)
-		instance=AnsweredQuestionTestModule()
-		instance.examinee=user
-		instance.question=question
-		instance.answer=answer
-		instance.u=u
-		instance.put()
-	return
-
 def fetchAllQuestionsParamsTestModule(user):
-	query=AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user)
+	#query=AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user)
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True))
 	params=[]
 	if query.count()>=2:	#the user must answer atleast 2 questions :)
 		for instance in query:
@@ -151,7 +152,12 @@ def fetchAllQuestionsParamsTestModule(user):
 			params.append(a)
 			params.append(b)
 			params.append(c)
-			params.append(instance.u)
+			u=0.0
+			if isCorrectAnswer(AnsweredQuestion.answer.id()):
+				u=1.0
+			params.append(u)
 	else:
+
 		return params
 	return params
+
