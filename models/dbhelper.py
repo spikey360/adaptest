@@ -153,7 +153,7 @@ def fetchAllQuestionsParamsTestModule(user):
 			params.append(b)
 			params.append(c)
 			u=0.0
-			if isCorrectAnswer(AnsweredQuestion.answer.id()):
+			if isCorrectAnswer(instance.answer.id()):
 				u=1.0
 			params.append(u)
 	else:
