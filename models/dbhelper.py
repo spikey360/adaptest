@@ -51,12 +51,12 @@ def fetchMoreDifficultQuestions(b):
 def fetchMoreDifficultQuestion(b,user):
 	query=fetchMoreDifficultQuestions(b)
 	for question in query:
-		if AlreadyMarked(user,question.key.id()) == False:
+		if AlreadyMarked(user,question.key) == False:
 			return question.key.id()
 	return False
 
-def AlreadyMarked(user,question):
-	query=AnsweredQuestionTestModule.query(ndb.AND(AnsweredQuestionTestModule.examinee==user,AnsweredQuestionTestModule.question==str(question)))
+def AlreadyMarked(user,question_key):
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==question_key,AnsweredQuestion.evaluation==True))
 	if query.count()==1:	#the user has already answered the given question
 		return True
 	else:
