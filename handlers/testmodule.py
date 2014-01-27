@@ -20,30 +20,30 @@ def evalFirstQuestion(u,timeLeft,c):
 	#worst naive algo i could come up with in a jiffy to test the rest with summation 
 	#ajust this tempTheta with the b value of the question and try and give one with b=~4-6
 	tempTheta=2.5
-	if(u==0):
+	if(u==globals.incorrectAnswer):
 		#time is not taken into consideration if answer is wrong
 		tempTheta=tempTheta/2
 	else:
 		#time is considered a lot of question is passed, guessing is considered if timeTaken < 10 sec
 		#else only solve time is taken :)
-		if math.fabs(0.33-u)<=0.01:
+		if (u==globals.passAnswer):
 		#pass
 			#best case 1.15x
 			#worst case 1.05x
 			tempTheta=tempTheta*( timeLeft/300+1.05)
 		else:
 		#correct
-			if timeLeft>20:
-				#best case 1.43
-				#worst case 1.31
-				tempTheta=tempTheta*(timeLeft*0.12/9+1.03)
+			if timeLeft>=18:
+				#best case 1.40
+				#worst case 1.20
+				tempTheta=tempTheta*(-timeLeft/60+1.7)
 			else:
-				#best case 1.4
-				#worst case 1.30
-				tempTheta=tempTheta*(timeLeft/200+1.3)
+				#best case 1.40
+				#worst case 1.20
+				tempTheta=tempTheta*(timeLeft/90+1.2)
 	#logging.info('tempTheta=%s'%tempTheta)
 	return tempTheta
-	
+
 def evalNextQuestion(u,user,previousTheta):
 	#part of the formula is taken from Pg 85 and part developed by me and used some part of st. line eqn
 	#estimate the user's theta and get the next question based on this theta
@@ -81,14 +81,13 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 	questionTimerEnd=int(float(currentUserGlobals.questionTimerEnd))
 	timeRemaining=-int(float(timeAnswerWasPostedToServer))+questionTimerEnd
 	#u is the score given to the user, 1 if the answer is correct , 0 if its incorrect and 0.33 if passed :)
-	u=0.0
+	u=globals.incorrectAnswer
 	if givenAnswerID == '':
-		#u=0.33
-		u=0.0
+		u=globals.passAnswer
 	else:
 		CorrectAnswer=isCorrectAnswer(int(givenAnswerID))
 		if CorrectAnswer:
-			u=1.0
+			u=globals.correctAnswer
 	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,u)
 	if currentUserGlobals.questionNumberToGive == globals.firstQuestion:
 		logging.info("tempTheta for first question\n")
