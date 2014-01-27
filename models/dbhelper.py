@@ -145,7 +145,7 @@ def fetchAllQuestionsParamsTestModule(user):
 	if query.count()>=2:	#the user must answer atleast 2 questions :)
 		for instance in query:
 			currentQuestion=instance.question
-			question=fetchQuestion(int(currentQuestion))
+			question=fetchQuestion(currentQuestion.id())
 			a=(question.a)
 			b=(question.b)
 			c=(question.c)
