@@ -124,7 +124,8 @@ def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
 	return insertQuestionAnswered(user,question.key,answer.key,evaluation=True)
 	
 def fetchAllQuestionsParamsTestModule(user):
-	query=AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user)
+	#query=AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user)
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True))
 	params=[]
 	if query.count()>=2:	#the user must answer atleast 2 questions :)
 		for instance in query:
