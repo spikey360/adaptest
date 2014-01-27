@@ -1,9 +1,12 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 <title>Adaptest - Simple Adaptive Testing</title>
 <link rel="stylesheet" type="text/css" href="/style/style.css"/>
-<script src="/js/submit.js"></script>
-<script src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/submit.js"></script>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -12,14 +15,14 @@
 <div class="nav"><a href="/" class="jump">Answer another</a></div>
 <div class="cont">
 <div class="nav">
-<br>
+<br />
 </div>
 <div>Choose one</div>
 <div>
 <table>
 <tr><td></td><td><b>{{ question.question }}</b></td></tr>
 {% for answer in answers %}
-<tr><td><input type="radio" name='correct' onclick="setAnswer('{{ answer.key.id() }}')"></td><td>{{ answer.answer }}</td></tr>
+<tr><td><input type="radio" name='correct' onclick="setAnswer('{{ answer.key.id() }}')" /></td><td>{{ answer.answer }}</td></tr>
 {% endfor %}
 <tr><td></td><td></td></tr>
 <tr><td></td><td><input type="button" value="Submit" onclick='submitAnswer()'></td></tr>
