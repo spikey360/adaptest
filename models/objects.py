@@ -35,7 +35,7 @@ class AnsweredQuestion(ndb.Model):
 	evaluation=ndb.BooleanProperty();
 	#the user who answered
 	user=ndb.UserProperty()
-	question=ndb.StringProperty()
+	question=ndb.KeyProperty(Question)
 	#the answer the user gave
 	answer=ndb.KeyProperty(Answer)
 	#the time at which this was given
