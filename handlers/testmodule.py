@@ -89,11 +89,11 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 		if CorrectAnswer:
 			u=globals.correctAnswer
 	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,u)
-	if currentUserGlobals.questionNumberToGive == globals.firstQuestion:
-		logging.info("tempTheta for first question\n")
+	if int(currentUserGlobals.TotalQuestions) == 10:
+		logging.info('\ntempTheta for question: %s'%currentUserGlobals.TotalQuestions)
 		nextTheta=evalFirstQuestion(u,timeRemaining,0.25)
 	else:
-		logging.info("Not first question, so std. calc\n")
+		logging.info('\nStd. Calculation for question: %s'%currentUserGlobals.TotalQuestions)
 		nextTheta=evalNextQuestion(u,currentUser,float(currentUserGlobals.theta))
 	
 	logging.info('\nnextTheta=%s\n'%nextTheta)

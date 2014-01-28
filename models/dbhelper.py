@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import models
+import handlers.globals
 
-from models.objects import *
+from objects import *
 from google.appengine.ext import ndb
 import logging
 
@@ -151,7 +151,6 @@ def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
 	return insertQuestionAnswered(user,question.key,answer.key,evaluation=True)
 	
 def fetchAllQuestionsParamsTestModule(user):
-	#query=AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user)
 	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True))
 	params=[]
 	if query.count()>=2:	#the user must answer atleast 2 questions :)
@@ -164,9 +163,11 @@ def fetchAllQuestionsParamsTestModule(user):
 			params.append(a)
 			params.append(b)
 			params.append(c)
-			u=-1.0
-			if isCorrectAnswer(instance.answer.id()):
-				u=1.0
+			u=handlers.globals.incorrectAnswer
+			if instance.answer==getPassedAnswer():
+				u=handlers.globals.passAnswer
+			elif isCorrectAnswer(instance.answer.id()):
+				u=handlers.globals.correctAnswer
 			params.append(u)
 	else:
 
