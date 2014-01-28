@@ -2,7 +2,7 @@
 
 from models.objects import *
 from google.appengine.ext import ndb
-import globals
+import handlers.globals as globals
 import logging
 
 class InvalidIdError(Exception):
