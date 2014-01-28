@@ -104,7 +104,7 @@ def fetchGlobal(user):
 	if query.count()==1:
 		return query.get()
 	else:
-		raise InvalidIdError(q_id)
+		return None
 		
 def insertQuestionAnswered(user,questionId,answerId,evaluation=False):
 	aq=AnsweredQuestion()
