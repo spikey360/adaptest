@@ -2,7 +2,6 @@
 
 from models.objects import *
 from google.appengine.ext import ndb
-
 import logging
 
 class InvalidIdError(Exception):
@@ -131,6 +130,8 @@ def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
 	#StringProperty,StringProperty,UserProperty,dontcare
 	question=None
 	answer=None
+	if u==0.0:
+		return 'S' #if question passed, who cares, no need to store anything. Note: may cause the question to recurr later in the same test.
 	try:
 		question=fetchQuestion(int(q_id_str))
 		answer=getAnswer(int(a_id_str))
@@ -152,7 +153,7 @@ def fetchAllQuestionsParamsTestModule(user):
 			params.append(a)
 			params.append(b)
 			params.append(c)
-			u=0.0
+			u=-1.0
 			if isCorrectAnswer(instance.answer.id()):
 				u=1.0
 			params.append(u)
@@ -160,4 +161,8 @@ def fetchAllQuestionsParamsTestModule(user):
 
 		return params
 	return params
+
+def getSetting(prop_str):
+	query=Setting.query(Setting.prop==prop_str)
+	return query.get()
 

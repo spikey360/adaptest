@@ -68,3 +68,7 @@ class AnsweredQuestionTestModule(ndb.Model):
 	question=ndb.StringProperty()
 	answer=ndb.StringProperty()
 	u=ndb.FloatProperty()
+
+class Setting(ndb.Model):
+	prop=ndb.StringProperty()
+	val=ndb.StringProperty()
