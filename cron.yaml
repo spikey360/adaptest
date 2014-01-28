@@ -1,5 +1,6 @@
 cron:
-- description: Twice daily parameter estimation
-  url: /estim/admin/calculateparams
-  schedule: every 12 hours
+#commenting out until tests complete
+#- description: Twice daily parameter estimation
+#  url: /estim/admin/calculateparams
+#  schedule: every 12 hours
 

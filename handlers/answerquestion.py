@@ -66,8 +66,15 @@ class AnswerQuestion(webapp2.RequestHandler):
 		#aq=AnsweredQuestion()
 		#get the id of the Answer which has been selected
 		a_id=self.request.get('answer')
-		query=Answer.query(Answer.key==ndb.Key('Answer',int(a_id)))
-		if query.count()==1:
+		question=None
+		answer=None
+		try:
+			question=dbhelper.fetchQuestion(int(q_id))
+			answer=dbhelper.getAnswer(int(a_id))
+		except dbhelper.InvalidIdError:
+			self.response.out.write("F")
+			return
+		if answer is not None:
 			#then a valid answer has been given for some question
 			#aq.user=user.user_id() #put the user name
 			#aq.answer=query.get().key #the key id of the answer that has been given by him
@@ -76,7 +83,7 @@ class AnswerQuestion(webapp2.RequestHandler):
 			#	self.response.out.write("S") #write a flag indicating success
 			#except TransactionFailedError: #some bug here
 			#	self.response.out.write("F")
-			result=insertQuestionAnswered(user,q_id,query.get().key)
+			result=insertQuestionAnswered(user,question.key,answer.key)
 			self.response.out.write(result)
 		else:
 			#invalid answer given
