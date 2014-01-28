@@ -62,12 +62,6 @@ class globalInstances(ndb.Model):
 	questionNumberToGive=ndb.StringProperty()
 	questionTimerEnd=ndb.StringProperty()
 	theta=ndb.FloatProperty()
-	
-class AnsweredQuestionTestModule(ndb.Model):
-	examinee=ndb.UserProperty()
-	question=ndb.StringProperty()
-	answer=ndb.StringProperty()
-	u=ndb.FloatProperty()
 
 class Setting(ndb.Model):
 	prop=ndb.StringProperty()
