@@ -10,6 +10,7 @@ import handlers.addestimationcredential
 import handlers.computation
 import handlers.parametercalculator
 import handlers.testmodule
+import test.unittestinghandler
 
 ######################
 HomeHandler=handlers.homehandler.HomeHandler
@@ -23,6 +24,7 @@ GetKhiHandler=handlers.computation.GetKhi
 ParameterCalculatorHandler=handlers.parametercalculator.ParameterCalculatorHandler
 ParameterCalculatorWorker=handlers.parametercalculator.ParameterCalculatorWorker
 TestModule=handlers.testmodule.TestModule
+UnitTestingHandler=test.unittestinghandler.UnitTestingHandler
 ######################
 
 app=webapp2.WSGIApplication(
@@ -37,6 +39,7 @@ app=webapp2.WSGIApplication(
 ('/estim/admin/calculateparams',ParameterCalculatorHandler),
 ('/estim/admin/tasks/calculateparams',ParameterCalculatorWorker),
 ('/test',TestModule),
+('/unittest',UnitTestingHandler),
 ],
 debug=True
 )
