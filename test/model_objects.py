@@ -5,7 +5,7 @@ from google.appengine.ext import testbed
 from models.objects import *
 from models.dbhelper import *
 
-class EvaluationTestCase(unittest.TestCase):
+class QuestionAnswerTest(unittest.TestCase):
 	def setUp(self):
 		self.testbed=testbed.Testbed()
 		self.testbed.activate()
@@ -36,6 +36,8 @@ class EvaluationTestCase(unittest.TestCase):
 		
 		q=fetchQuestion(question.key.id())
 		self.assertEqual(question,q)
+		
+		self.assertRaises(InvalidIdError,fetchQuestion,123)
 	
 	def test_fetchAnswers(self):
 		question=Question()
@@ -55,6 +57,7 @@ class EvaluationTestCase(unittest.TestCase):
 		a3.answer="a3"
 		a4.answer="a4"
 		a4.correct=True
+		a1.correct=a2.correct=a3.correct=False
 		a1.put()
 		a2.put()
 		a3.put()
@@ -67,4 +70,19 @@ class EvaluationTestCase(unittest.TestCase):
 		self.assertEqual(a3,getAnswer(a3.key.id()))
 		self.assertEqual(True,isCorrectAnswer(a_key.id()))
 		self.assertEqual(False,isCorrectAnswer(a2.key.id()))
+		self.assertRaises(InvalidIdError,getAnswer,123)
+		self.assertRaises(InvalidIdError,fetchAnswers,123)
+	
+	def test_global(self):
+		user=users.get_current_user()
+		gi=globalInstances()
+		gi.examinee=user
+		gi.TotalQuestions="Random string"
+		gi.questionNumberToGive="Random String 2"
+		gi.questionTimerEnd="Random String 3"
+		gi.theta=3.141592653
+		gi.put()
+		self.assertEquals(gi,fetchGlobal(user))
+		self.assertIsNone(fetchGlobal(None))
+		
 
