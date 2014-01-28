@@ -17,11 +17,29 @@ jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("view
 #Handler class for the home page
 #Presently, shows and gives link to all questions in the DB
 
+def createDummyAnswer():
+	query=Answer.query(Answer.answer=='~pass~')
+	if query.count()>=1:
+		return#do nothing cuz dummy answer present
+	else:
+		instance=Answer()
+		instance.answer='~pass~'
+		try:
+			#write it to DB
+			instance.put() 
+			return
+		except TransactionFailedError: #some bug here
+			return 'F'
+	return
+
+
+
 class HomeHandler(webapp2.RequestHandler):
 	def __init__(self,request,response):
 		self.initialize(request,response)
 	def get(self):
 		#force the use to Login
+		createDummyAnswer()
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))

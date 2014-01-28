@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import models
+
 from models.objects import *
 from google.appengine.ext import ndb
 import logging
@@ -10,7 +12,6 @@ class InvalidIdError(Exception):
 	def __str__(self):
 		return str(self.q_id)
 
-
 def fetchQuestion(q_id):
 	#fetch it
 	query=Question.query(Question.key==ndb.Key('Question',q_id))
@@ -18,9 +19,18 @@ def fetchQuestion(q_id):
 		return query.get()
 	else:
 		raise InvalidIdError(q_id)
+
 def getAnswer(a_id):
 	#fetch it
 	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))
+	if query.count()==1:
+		return query.get()
+	else:
+		raise InvalidIdError(a_id)
+		
+def getPassedAnswer():
+	#fetch it
+	query=Answer.query(Answer.answer=='~pass~')
 	if query.count()==1:
 		return query.get()
 	else:
@@ -130,11 +140,12 @@ def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
 	#StringProperty,StringProperty,UserProperty,dontcare
 	question=None
 	answer=None
-	if u==0.0:
-		return 'S' #if question passed, who cares, no need to store anything. Note: may cause the question to recurr later in the same test.
 	try:
+		if a_id_str=='':
+			answer=getPassedAnswer()
+		else:
+			answer=getAnswer(int(a_id_str))
 		question=fetchQuestion(int(q_id_str))
-		answer=getAnswer(int(a_id_str))
 	except InvalidIdError:
 		raise
 	return insertQuestionAnswered(user,question.key,answer.key,evaluation=True)
