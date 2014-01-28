@@ -62,7 +62,7 @@ def AlreadyMarked(user,question_key):
 		return False
 
 def clearUserTestAnswers(user):
-	delete_keys = AnsweredQuestionTestModule.query(AnsweredQuestionTestModule.examinee==user).fetch(keys_only=True)
+	delete_keys = AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True)).fetch(keys_only=True)
 	ndb.delete_multi(delete_keys)
 	return
 
