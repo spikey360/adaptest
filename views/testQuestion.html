@@ -5,7 +5,7 @@
 <script src="/js/submit.js"></script>
 <script src="/js/jquery.min.js"></script>
 <script>
-var freeze=0
+var freeze=0;
 function clickOn30Sec()
 {
 	var endEpoch={{ endTime }};	//received from server :)
@@ -22,6 +22,15 @@ function clickOn30Sec()
 	else
 		document.getElementById('submitBtn').click();
 	},1000);
+}
+</script>
+<script>
+function skip(){
+boxes=document.getElementsByName("option");
+for(i=0;i<boxes.length;i++){
+	boxes[i].checked=false;
+	}
+document.getElementById('myForm').submit();
 }
 </script>
 </head>
@@ -47,7 +56,7 @@ Choose the correct Option <div id="txt" align="right"></div>
 	</div> 
 	<br><br>
 	<div>
-		<tr><td></td><td><input id="submitBtn" type="submit" value="Submit"></td></tr>
+		<tr><td></td><td><input id="submitBtn" type="submit" value="Submit"><input type="button" value="Skip" onclick="skip()"></td></tr>
 	</div>    
 </form>
 
