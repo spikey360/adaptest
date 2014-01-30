@@ -14,11 +14,20 @@ from models.dbhelper import *
 from google.appengine.api import users
 from computation import calculateP
 
+class InvalidTimeLeftError(Exception):
+	def __init__(self,timeLeft):
+		self.timeLeft=timeLeft
+	def __str__(self):
+		return str(self.timeLeft)
+
+
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
 def evalFirstQuestion(u,timeLeft,c):
 	#worst naive algo i could come up with in a jiffy to test the rest with summation 
 	#ajust this tempTheta with the b value of the question and try and give one with b=~4-6
+	if timeLeft<0 or timeLeft>30:
+		raise InvalidTimeLeftError(timeLeft)
 	tempTheta=2.5
 	if(u==globals.incorrectAnswer):
 		#time is not taken into consideration if answer is wrong
@@ -53,7 +62,7 @@ def evalNextQuestion(u,user,previousTheta):
 	params=fetchAllQuestionsParamsTestModule(user)
 	theta_S=previousTheta
 	while True:
-		time.sleep(1) #since db operations are going to happen its beneficial to give waste some time here
+		#time.sleep(1) #since db operations are going to happen its beneficial to give waste some time here #not worth it
 		theta_S_1=getNewTheta(params,previousTheta)
 		if math.fabs(theta_S_1-theta_S) <=0.2:
 			break
