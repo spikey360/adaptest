@@ -160,15 +160,12 @@ def fetchAllQuestionsParamsTestModule(user):
 			a=(question.a)
 			b=(question.b)
 			c=(question.c)
-			params.append(a)
-			params.append(b)
-			params.append(c)
 			u=handlers.globals.incorrectAnswer
 			if instance.answer==getPassedAnswer():
 				u=handlers.globals.passAnswer
 			elif isCorrectAnswer(instance.answer.id()):
 				u=handlers.globals.correctAnswer
-			params.append(u)
+			params.append((a,b,c,u))
 	else:
 
 		return params

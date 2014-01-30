@@ -73,12 +73,15 @@ def evalNextQuestion(u,user,previousTheta):
 def getNewTheta(params,theta_S):
 	sumNumerator=0
 	sumDenominator=0.00000001	#just incase the for loop does not get executed!
-	for x in range(0, int(len(params)/4)):
-		P=float(calculateP(theta_S,params[x*4],params[x*4+1],params[x*4+2]))
-		#sumNumerator=sumNumerator-params[x*4]*(params[x*4+3]-P) #original formula :/
-		sumNumerator=sumNumerator+params[x*4]*(params[x*4+3]-P)
-		sumDenominator=sumDenominator+(params[x*4]*params[x*4])*P*(1-P)
+
+	for param in params:
+		(a,b,c,u)=param
+		P=float(calculateP(theta_S,a,b,c))
+		Q=1-P
+		sumNumerator=sumNumerator+a*(u-P)
+		sumDenominator=sumDenominator+(a*a)*P*Q
 	theta_S1=theta_S+(sumNumerator/sumDenominator)
+	
 	return theta_S1
 
 
@@ -106,7 +109,7 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 		nextTheta=evalNextQuestion(u,currentUser,float(currentUserGlobals.theta))
 	
 	logging.info('\nnextTheta=%s\n'%nextTheta)
-	
+	#if nextTheta and current theta is same, terminate and display present theta as score
 	if nextTheta <0 or nextTheta>10:
 		vals={'message':'Your test has ended!<br>Result :<h1>Inconclusive</h1><br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
 		templateMessage=jinjaEnv.get_template('message.html')
