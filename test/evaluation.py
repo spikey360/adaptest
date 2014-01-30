@@ -7,16 +7,16 @@ from models.dbhelper import *
 from handlers.testmodule import *
 from handlers.globals import *
 
-def generate_AnsweredQuestion(thetaNow,user,correct=True):
+def generate_AnsweredQuestion(thetaNow,user,correct=True,gradient=0.2):
 	u=correctAnswer
 	#generating a question with a greater than known b
 	question=Question()
 	question.question="Hello World"
 	question.a=1.0
 	if correct:
-		question.b=thetaNow+0.2
+		question.b=thetaNow+gradient
 	else:
-		question.b=thetaNow-0.2
+		question.b=thetaNow-gradient
 	question.c=0.25
 	poster=users.get_current_user()
 	q_key=question.put()
