@@ -33,8 +33,8 @@ def getPassedAnswer():
 	query=Answer.query(Answer.answer=='~pass~')
 	if query.count()==1:
 		return query.get()
-	else:
-		raise InvalidIdError(a_id)
+	#else:
+	#	raise InvalidIdError(a_id)
 
 def fetchAnswers(q_id):
 	question=None

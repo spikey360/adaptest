@@ -62,7 +62,7 @@ def evalNextQuestion(u,user,previousTheta):
 	params=fetchAllQuestionsParamsTestModule(user)
 	theta_S=previousTheta
 	while True:
-		time.sleep(1) #since db operations are going to happen its beneficial to give waste some time here
+		#time.sleep(1) #since db operations are going to happen its beneficial to give waste some time here #not worth it
 		theta_S_1=getNewTheta(params,previousTheta)
 		if math.fabs(theta_S_1-theta_S) <=0.2:
 			break
