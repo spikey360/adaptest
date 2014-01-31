@@ -77,8 +77,15 @@ def clearUserTestAnswers(user):
 	return
 
 def fetchLessDifficultQuestions(b):
-	query=Question.query(Question.b<=b)
+	query=Question.query(Question.b<=b).order(Question.b)
 	return query.fetch()
+
+def fetchLessDifficultQuestion(b,user):
+	query=fetchLessDifficultQuestions(b)
+	for question in query:
+		if AlreadyMarked(user,question.key) == False:
+			return question.key.id()
+	return False
 
 def isCorrectAnswer(a_id):
 	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))
@@ -87,7 +94,7 @@ def isCorrectAnswer(a_id):
 	else:
 		raise InvalidIdError(a_id)
 		
-def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta):
+def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta, pastAnswer = 'correct'):
 	query=globalInstances.query(globalInstances.examinee==user)
 	
 	if query.count()>=1:	# time for update
@@ -96,6 +103,7 @@ def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta):
 			currentUser.questionNumberToGive=questionNumber
 			currentUser.questionTimerEnd=timer
 			currentUser.theta=currentTheta
+			currentUser.pastAnswer=pastAnswer
 			currentUser.put()
 	else:
 		# Globals for the currentUser does not exist, so create a new one :)
@@ -105,6 +113,7 @@ def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta):
 		instance.questionNumberToGive=questionNumber
 		instance.questionTimerEnd=timer
 		instance.theta=currentTheta
+		instance.pastAnswer=pastAnswer
 		instance.put()
 	return
 
@@ -178,3 +187,47 @@ def getSetting(prop_str):
 	query=Setting.query(Setting.prop==prop_str)
 	return query.get()
 
+def updateOrInsertScores(user, upperBound=11, lowerBound=-1):
+	query=ExamineeScores.query(ExamineeScores.examinee==user)
+	
+	if query.count()>=1:	# time for update
+		for currentUser in query:
+			if upperBound != 11:
+				currentUser.upperBoundTheta=upperBound
+			if lowerBound != -1:
+				currentUser.lowerBoundTheta=lowerBound
+			currentUser.put()
+	else:
+		# Scores for the currentUser does not exist, so create a new one :)
+		instance=ExamineeScores()
+		instance.examinee=user
+		if upperBound == 11:
+			instance.upperBoundTheta=0
+		else:
+			instance.upperBoundTheta=upperBound
+		if lowerBound == -1:
+			instance.lowerBoundTheta=0
+		else:
+			instance.lowerBoundTheta=lowerBound
+		instance.put()
+	return
+
+def ScoresIsAcceptable(user):
+	query=ExamineeScores.query(ExamineeScores.examinee==user)
+	if query.count()>=1:	# time for update
+		for currentUser in query:
+			if identicalTo(currentUser.lowerBoundTheta,currentUser.upperBoundTheta,1.5):
+				return True
+			return False
+	else:
+		return False
+
+def ReturnScores(user):
+	query=ExamineeScores.query(ExamineeScores.examinee==user)
+	if query.count()>=1:	# time for update
+		for currentUser in query:
+			str='The Score is [%s,%s]'%(currentUser.lowerBoundTheta,currentUser.upperBoundTheta)
+			return str
+		return 'Scores Not Found'
+	else:
+		return 'Scores Not Found'

@@ -65,8 +65,8 @@ class EvaluationTest(unittest.TestCase):
 				nextTheta=evalNextQuestion(state,user,thetaNow)
 				self.assertGreaterEqual(nextTheta,thetaNow)
 				thetaNow=nextTheta
-				
-				
+			logging.info('\ntheta increasing test :%s\n'%thetaNow)
+			
 	
 	def test_is_theta_decreasing(self):
 		states=[incorrectAnswer]

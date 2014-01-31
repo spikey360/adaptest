@@ -23,6 +23,9 @@ class InvalidTimeLeftError(Exception):
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
+
+
+################################# PG 85 ALGO START##################################################
 def evalFirstQuestion(u,timeLeft,c):
 	#worst naive algo i could come up with in a jiffy to test the rest with summation 
 	#ajust this tempTheta with the b value of the question and try and give one with b=~4-6
@@ -125,6 +128,83 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 		time.sleep(1.5)
 		self.redirect("/test")
 	return
+################################# PG 85 ALGO END##################################################
+
+
+################################# ALGO 2 START##################################################
+### SRC : http://luna.cas.usf.edu/~mbrannic/files/pmet/irt.htm #################################
+################################################################################################
+
+def checkTheta(nextTheta):
+	if nextTheta <0 or nextTheta>10:
+		vals={'message':'Your test has ended!<br>Result :<h1>Inconclusive</h1><br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
+		templateMessage=jinjaEnv.get_template('message.html')
+		self.response.out.write(templateMessage.render(vals))
+	return
+
+def DisplayResult(self,user):
+	str=ReturnScores(user)
+	vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(str)}
+	template=jinjaEnv.get_template('message.html')
+	self.response.out.write(template.render(vals))
+	return
+
+def fetchNextQuestionParams(self,user, pastAnswer, currentAnswer, currentTheta, TotalQuestions):
+	q=False
+	nextTheta=0
+	if pastAnswer=='correct' and currentAnswer=='correct':
+		nextTheta=currentTheta+(0.5)
+		logging.info('\nnextTheta=%s\n'%nextTheta)
+		checkTheta(nextTheta)
+		updateOrInsertScores(user,upperBound=nextTheta)
+		time.sleep(0.5)
+		q=fetchMoreDifficultQuestion(nextTheta,user)
+	elif currentAnswer=='incorrect':
+		nextTheta=currentTheta-(0.5)
+		logging.info('\nnextTheta=%s\n'%nextTheta)
+		checkTheta(nextTheta)
+		updateOrInsertScores(user,lowerBound=nextTheta)
+		time.sleep(0.5)
+		q=fetchLessDifficultQuestion(nextTheta,user)
+	else:
+		DisplayResult(self,user)
+	
+	time.sleep(1)
+	if q == False:
+		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
+		templateMessage=jinjaEnv.get_template('message.html')
+		self.response.out.write(templateMessage.render(vals))
+	else:
+		questionTimerEnd=round(time.time()+32.5)
+		update_or_Insert(user, str(TotalQuestions), str(q), str(questionTimerEnd),nextTheta,currentAnswer)
+		time.sleep(1.5)
+		self.redirect("/test")
+	return
+
+
+def getNextQuestion2(self, givenAnswerID, currentUser):
+	#get the currentUser global instances
+	currentUserGlobals=fetchGlobal(currentUser)
+	TotalQuestions=int(currentUserGlobals.TotalQuestions)
+	TotalQuestions=TotalQuestions-1
+	pastAnswer=currentUserGlobals.pastAnswer
+	currentAnswer='incorrect'
+	
+	if givenAnswerID == '':
+		#no scope of passing here and(or) also time
+		currentAnswer='incorrect'
+	else:
+		CorrectAnswer=isCorrectAnswer(int(givenAnswerID))
+		if CorrectAnswer:
+			currentAnswer='correct'
+	
+	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,0)
+	fetchNextQuestionParams(self,currentUser, pastAnswer, currentAnswer, currentUserGlobals.theta, TotalQuestions)
+	return
+
+################################# ALGO 2 END####################################################
+### SRC : http://luna.cas.usf.edu/~mbrannic/files/pmet/irt.htm #################################
+################################################################################################
 
 
 class TestModule(webapp2.RequestHandler):
@@ -133,7 +213,9 @@ class TestModule(webapp2.RequestHandler):
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
-		getNextQuestion(self, timeAnswerWasPosted, self.request.get('option'), user)
+		#getNextQuestion(self, timeAnswerWasPosted, self.request.get('option'), user)
+		getNextQuestion2(self, self.request.get('option'), user)
+	
 	def get(self):
 		user=users.get_current_user()
 		if not user:
@@ -154,3 +236,4 @@ class TestModule(webapp2.RequestHandler):
 			vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(currUser.theta)}
 			template=jinjaEnv.get_template('message.html')
 			self.response.out.write(template.render(vals))
+

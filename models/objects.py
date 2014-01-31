@@ -62,6 +62,13 @@ class globalInstances(ndb.Model):
 	questionNumberToGive=ndb.StringProperty()
 	questionTimerEnd=ndb.StringProperty()
 	theta=ndb.FloatProperty()
+	#a bool like var which will hint on whether the next question should be easy or difficult ;P
+	pastAnswer=ndb.StringProperty()
+
+class ExamineeScores(ndb.Model):
+	examinee=ndb.UserProperty()
+	upperBoundTheta=ndb.FloatProperty()
+	lowerBoundTheta=ndb.FloatProperty()
 
 class Setting(ndb.Model):
 	prop=ndb.StringProperty()
