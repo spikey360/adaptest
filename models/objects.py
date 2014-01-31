@@ -32,7 +32,7 @@ class Answer(ndb.Model):
 
 class AnsweredQuestion(ndb.Model):
 	#flag: true=Ability Evaluation answer, false=Parameter estimation Answer
-	evaluation=ndb.BooleanProperty();
+	evaluation=ndb.BooleanProperty()
 	#the user who answered
 	user=ndb.UserProperty()
 	question=ndb.KeyProperty(Question)
@@ -62,6 +62,10 @@ class globalInstances(ndb.Model):
 	questionNumberToGive=ndb.StringProperty()
 	questionTimerEnd=ndb.StringProperty()
 	theta=ndb.FloatProperty()
+	#first question wrong/right after all correct/incorrect; False=Not reached yet
+	inflexion_1=ndb.BooleanProperty()
+	#first question right/wrong after activating inflexion_1
+	inflexion_2=ndb.BooleanProperty()
 
 class Setting(ndb.Model):
 	prop=ndb.StringProperty()

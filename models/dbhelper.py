@@ -105,6 +105,8 @@ def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta):
 		instance.questionNumberToGive=questionNumber
 		instance.questionTimerEnd=timer
 		instance.theta=currentTheta
+		instance.inflexion_1=False # first time
+		instance.inflexion_2=False # neither of them are activated
 		instance.put()
 	return
 
