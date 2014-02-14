@@ -70,4 +70,23 @@ class HomeHandler(webapp2.RequestHandler):
 		self.redirect("/test")
 	
 	
+class TrainingHandler(webapp2.RequestHandler):
+	def __init__(self,request,response):
+		self.initialize(request,response)
+	def get(self):
+		#force the use to Login
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
+		#We are using a NoSQL DB so will be refraining fom writing GQL
+		#query for all Question objects in DB
+		query=Question.query()
+		#fetch them
+		questions=query.fetch()
+		#Values we will be passing to the view (of MVC)
+		vals={'questions':questions}
+		#get the page template suitable for this page
+		template=jinjaEnv.get_template('training.html')
+		#render the values into the template and put it in the output stream of the RequestHandler
+		self.response.out.write(template.render(vals))
 

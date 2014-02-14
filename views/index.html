@@ -13,18 +13,21 @@
 <div class="nav"><a href="/estim/admin/performance" class="jump">Administration</a>|<a href="/estim/admin/add" class="jump">Add a question</a></div>
 <div class="cont">
 <div class="nav">
+<br />
+<br />
+<br />
+<br />
+<br />
 <form action="/" method="post">
 	<div>
 		<input type="submit" value="Take Test" />
-	</div>    
+	</div>
+	<div>
+		<input type="button" value="Training" onclick="document.location='/estim/training'" />
+	</div>        
 </form>
 </div>
 <br />
-<ul>
-{% for q in questions %}
-<li><a href="/estim/answer/{{ q.key.id() }}">{{ q.question }}</a></li>
-{% endfor %}
-</ul>
 </div>
 <br />
 <br />

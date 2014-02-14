@@ -25,10 +25,12 @@ ParameterCalculatorHandler=handlers.parametercalculator.ParameterCalculatorHandl
 ParameterCalculatorWorker=handlers.parametercalculator.ParameterCalculatorWorker
 TestModule=handlers.testmodule.TestModule
 UnitTestingHandler=test.unittestinghandler.UnitTestingHandler
+Training=handlers.homehandler.TrainingHandler
 ######################
 
 app=webapp2.WSGIApplication(
 [('/',HomeHandler),
+('/estim/training',Training),
 ('/estim/admin/add',AddQuestion),
 (r'/estim/admin/perform/(\S+)',PerformEstimation),
 ('/estim/admin/performance',PerformanceHandler),
