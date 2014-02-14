@@ -6,6 +6,10 @@ correctAnswer=1.0
 incorrectAnswer=-1.0
 passAnswer=0.0
 
+tougherQuestion=1000
+easierQuestion=2000
+maxInfoQuestion=3000
+
 #first function in this accursed file :D
 def identicalTo(numberA,numberB,marginOfError=0.01):
 	if math.fabs(numberA-numberB) <= marginOfError:

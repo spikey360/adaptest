@@ -10,7 +10,6 @@ import globals
 
 #import everthing :P cuz soon , we are gonna need more than a few of the dbhelper functions 
 from models.dbhelper import *
-
 from google.appengine.api import users
 from computation import calculateP
 
@@ -84,7 +83,34 @@ def getNewTheta(params,theta_S):
 	
 	return theta_S1
 
-
+def calculateNatureOfNextQuestion(lastCorrect_bool,infl1_bool,infl2_bool):
+	#returns tougherQuestion, easierQuestion, maxInfoQuestion
+	askTough=False
+	#if last answer was correct and we have not hit inflexion_1, ask a tougher
+	if lastCorrect_bool and not infl1_bool:
+		askTough=True
+	#if last answer was incorrect and we have not hit inflexion_1, hit inflexion_1, ask an easier
+	elif not lastCorrect_bool and not infl1_bool:
+		askTough=False
+		infl1_bool=True
+	#if last answer was correct and we have hit inflexion_1, hit inflexion_2, prepare for maximum information question
+	elif lastCorrect_bool and infl1_bool:
+		infl2_bool=True
+	#if last answer was incorrect and we have hit inflexion_1, ask an easier
+	elif not lastCorrect_bool and infl1_bool:
+		infl2_bool=True
+	
+	
+	#the algorithm should go like this
+	#if correct answer, ask a tougher question
+	if infl2_bool:
+		return (globals.maxInfoQuestion,infl1_bool,infl2_bool)
+	elif askTough:
+		return (globals.tougherQuestion,infl1_bool,infl2_bool)
+	#if incorrect answer/pass, ask an easier question till you get a correct answer
+	else:
+		return (globals.easierQuestion,infl1_bool,infl2_bool)
+	
 def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUser):
 	#get the currentUser global instances
 	currentUserGlobals=fetchGlobal(currentUser)
@@ -101,68 +127,25 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 		if CorrectAnswer:
 			u=globals.correctAnswer
 	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,u)
-	#if int(currentUserGlobals.TotalQuestions) == 10:
-	#	logging.info('\ntempTheta for question: %s'%currentUserGlobals.TotalQuestions)
-	#	nextTheta=evalFirstQuestion(u,timeRemaining,0.25)
-	#else:
-	#	logging.info('\nStd. Calculation for question: %s'%currentUserGlobals.TotalQuestions)
-	#	nextTheta=evalNextQuestion(u,currentUser,float(currentUserGlobals.theta))
-	#logging.info('\nnextTheta=%s\n'%nextTheta)
-	#if nextTheta and current theta is same, terminate and display present theta as score
-	###########################################################
-	b=fetchQuestion(int(currentUserGlobals.questionNumberToGive)).b
-	askTough=False
-	#if last answer was correct and we have not hit inflexion_1, ask a tougher
-	if u==globals.correctAnswer and currentUserGlobals.inflexion_1==False
-		askTough=True
-	#if last answer was incorrect and we have not hit inflexion_1, hit inflexion_1, ask an easier
-	elif u==globals.incorrectAnswer or u==globals.passAnswer and currentUserGlobals.inflexion_1=False
-		askTough=False
-		currentUserGlobals.inflexion_1=True
-	#if last answer was correct and we have hit inflexion_1, hit inflexion_2, prepare for maximum information question
-	elif u==globals.correctAnswer and currentUserGlobals.inflexion_1=True
-		currentUserGlobals.inflexion_2=True
-	#if last answer was incorrect and we have hit inflexion_1, ask an easier
-	elif u==globals.incorrectAnswer or u==globals.passAnswer and currentUserGlobals.inflexion_1=True
-		currentUserGlobals.inflexion_2=True
 	
-	next=None
-	#the algorithm should go like this
-	#if correct answer, ask a tougher question
-	if currentUserGlobals.inflexion_2:
-		currentUserGlobals.questionNumberToGive=fetchMostInformative(b,user)
-	elif askTough:
-		difficult=fetchMoreDifficultQuestion(b,currentUser)
-		#next=fetchQuestion(difficult) #TODO
-		currentUserGlobals.questionNumberToGive=str(difficult)
-	#if incorrect answer/pass, ask an easier question till you get a correct answer
+	b=fetchQuestion(int(currentUserGlobals.questionNumberToGive)).b
+	nextNature=globals.easierQuestion
+	if u==globals.correctAnswer:
+		nextNature=getNatureOfNextQuestion(True,currentUserGlobals.inflexion_1,currentUserGlobals.inflexion_2)
 	else:
-		easier=fetchMoreDifficultQuestion(b,currentUser,easier=True)
-		#next=fetchQuestion(difficult) #TODO
-		currentUserGlobals.questionNumberToGive=str(easier)
+		nextNature=getNatureOfNextQuestion(False,currentUserGlobals.inflexion_1,currentUserGlobals.inflexion_2)	
+	if nextNature==globals.tougherQuestion:
+		pass
+	if nextNature==globals.easierQuestion:
+		pass
+	if nextNature==globals.maxInfoQuestion:
+		pass
 	currentUserGlobals.put() #make the data persistent with a db write
 	#as soon as we get the correct answer, calc theta using evalNextQuestion
 	#then we keep giving those questions which give maxiumum information for the person
 	#we continue giving until the 'confidence interval' is lower than a predef value
 	
-	if nextTheta <0 or nextTheta>10:
-		vals={'message':'Your test has ended!<br>Result :<h1>Inconclusive</h1><br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
-		templateMessage=jinjaEnv.get_template('message.html')
-		self.response.out.write(templateMessage.render(vals))
-		return
-	time.sleep(1)
-	q=fetchMoreDifficultQuestion(nextTheta,currentUser)
-	logging.info('\nq=%s\n'%q)
-	if q == False:
-		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
-		templateMessage=jinjaEnv.get_template('message.html')
-		self.response.out.write(templateMessage.render(vals))
-	else:
-		questionTimerEnd=round(time.time()+32.5)
-		update_or_Insert(currentUser, str(TotalQuestions), str(q), str(questionTimerEnd),nextTheta)
-		time.sleep(1.5)
-		self.redirect("/test")
-	return
+	
 
 
 class TestModule(webapp2.RequestHandler):
