@@ -3,6 +3,7 @@
 import webapp2
 import jinja2
 import os
+import tools.renderengine as renderengine
 from models.objects import Question
 from models.objects import Answer
 from models.objects import AnsweredQuestion
@@ -10,6 +11,7 @@ from models.objects import EstimationCredentials
 from models import dbhelper
 from google.appengine.ext import ndb
 from google.appengine.api import users
+
 
 from models.dbhelper import insertQuestionAnswered
 
@@ -48,9 +50,9 @@ class AnswerQuestion(webapp2.RequestHandler):
 		#Values to pass to the View component
 		vals={'question':question,'answers':answers,'current_user':user}
 		#render to the template
-		template=jinjaEnv.get_template('answerQuestion.html')
+		data=renderengine.getRenderedQuestion(question.key.id(),vals)
 		#write it to the handler's output stream
-		self.response.out.write(template.render(vals))
+		self.response.out.write(data)
 		
 	#overriding the function to be executed for a POST request
 	def post(self, q_id):
