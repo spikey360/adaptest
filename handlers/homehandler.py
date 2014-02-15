@@ -83,8 +83,14 @@ class TrainingHandler(webapp2.RequestHandler):
 		query=Question.query()
 		#fetch them
 		questions=query.fetch()
+		trainingQuestions=[]
+		for question in questions:
+			if hasAnsweredAlready(user,question.key):
+				trainingQuestions.append((question,True))
+			else:
+				trainingQuestions.append((question,False))
 		#Values we will be passing to the view (of MVC)
-		vals={'questions':questions}
+		vals={'questions':trainingQuestions}
 		#get the page template suitable for this page
 		template=jinjaEnv.get_template('training.html')
 		#render the values into the template and put it in the output stream of the RequestHandler

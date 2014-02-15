@@ -188,3 +188,9 @@ background-color: rgba(7,113,184,0.5);
 li:nth-child(2n+2){
 background-color: rgba(7,113,184,0.1);
 }
+
+.answeredQuestion{
+font-weight: bold;
+font-size: 8px;
+color: red;
+}

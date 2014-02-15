@@ -93,6 +93,12 @@ def isCorrectAnswer(a_id):
 		return query.get().correct
 	else:
 		raise InvalidIdError(a_id)
+
+def hasAnsweredAlready(user,Question_key,evaluation=False):
+	aq=AnsweredQuestion.query(AnsweredQuestion.question==Question_key,AnsweredQuestion.evaluation==evaluation,AnsweredQuestion.user==user)
+	if aq.count()==1:
+		return True
+	return False
 		
 def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta, pastAnswer = 'correct'):
 	query=globalInstances.query(globalInstances.examinee==user)
