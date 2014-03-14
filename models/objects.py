@@ -57,15 +57,13 @@ class EstimationCredentials(ndb.Model):
 	
 class globalInstances(ndb.Model):
 	examinee=ndb.UserProperty()
-	TotalQuestions=ndb.StringProperty()
-	#this question number will contain the id of the question to give so it is quite similar to number 
-	questionNumberToGive=ndb.StringProperty()
-	questionTimerEnd=ndb.StringProperty()
+	#the present assessment of the ability of the candidate
 	theta=ndb.FloatProperty()
 	#first question wrong/right after all correct/incorrect; False=Not reached yet
 	inflexion_1=ndb.BooleanProperty()
 	#first question right/wrong after activating inflexion_1
 	inflexion_2=ndb.BooleanProperty()
+	isTestFinished=ndb.BooleanProperty()
 
 class Setting(ndb.Model):
 	prop=ndb.StringProperty()

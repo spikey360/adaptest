@@ -54,6 +54,7 @@ def fetchAnswersOf(Question):
 		raise
 
 def fetchMoreDifficultQuestions(b):
+	#TODO: bounds on the maximum number of questions to fetch
 	query=Question.query(Question.b>=b).order(Question.b)
 	return query.fetch()
 
@@ -61,7 +62,7 @@ def fetchMoreDifficultQuestion(b,user):
 	query=fetchMoreDifficultQuestions(b)
 	for question in query:
 		if AlreadyMarked(user,question.key) == False:
-			return question.key.id()
+			return question
 	return False
 
 def AlreadyMarked(user,question_key):
@@ -79,6 +80,16 @@ def clearUserTestAnswers(user):
 def fetchLessDifficultQuestions(b):
 	query=Question.query(Question.b<=b)
 	return query.fetch()
+
+def fetchLessDifficultQuestion(b,user):
+	query=fetchLessDifficultQuestions(b)
+	for question in query:
+		if AlreadyMarked(user,question.key) == False:
+			return question
+	return False #should ideally throw an exception
+
+def fetchMostInformativeQuestion(user):
+	return fetchMoreDifficultQuestion(5.0,user) #TODO implement this to find the question with maximum information
 
 def isCorrectAnswer(a_id):
 	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))

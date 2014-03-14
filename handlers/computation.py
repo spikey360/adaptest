@@ -81,3 +81,13 @@ class GetKhi(webapp2.RequestHandler):
 		if question is not None:
 			question.put()
 		self.response.out.write("%f,%f,%f"%(calc_a,calc_b,calc_c))
+
+def calculateItemInformation(a,b,c,theta):
+	p=calculateP(theta,a,b,c)
+	q=1.0-p
+	z=p-c
+	m=1-c
+	i=a*a*z*z*q/(m*m*p)
+	return i
+
+
