@@ -11,7 +11,7 @@ import globals
 #import everthing :P cuz soon , we are gonna need more than a few of the dbhelper functions 
 from models.dbhelper import *
 from google.appengine.api import users
-from computation import calculateP
+from computation import calculateP, calculateMLE
 
 class InvalidTimeLeftError(Exception):
 	def __init__(self,timeLeft):
@@ -24,10 +24,6 @@ jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("view
 
 #####################################################################
 
-def calculateMLE(user):
-	#Maximum Likelihood Estimation
-	precision=0.001
-	#http://www.tc.umn.edu/~nydic001/docs/unpubs/MML_in_IRT_Presentation.pdf ;page 21
 	
 	
 
@@ -65,21 +61,25 @@ def calculateNatureOfNextQuestion(lastTwo_bool,infl1_bool,infl2_bool):
 	else:
 		return (globals.easierQuestion,infl1_bool,infl2_bool)
 	
-def getFirstQuestion(user):
+def getFirstQuestion(global_state,user):
 	qs=fetchMoreDifficultQuestion(5.0,user)
+	userState=global_state
+	userState.theta=qs.b
+	userState.put()
 	return qs
 
-def getNextQuestion(global_state):
+def getNextQuestion(global_state,user):
 
-	user=users.get_current_user()
 	#get the list of all questions faced
 	allFaced=fetchAllQuestionsParamsTestModule(user)
 	userState=fetchGlobal(user)
-	
+	print allFaced
 	#get the last two questions, observe the trend
-	(a1,b1,c1,sec_last)=allFaced[len(allFaced)-1]
-	(a2,b2,c2,last)=allFaced[len(allFaced)-2]
+	(a1,b1,c1,sec_last)=allFaced[len(allFaced)-2]
+	(a2,b2,c2,last)=allFaced[len(allFaced)-1]
 	lasts=[]
+	
+	
 	if sec_last==globals.correctAnswer:
 		lasts.append(True)
 	else:
@@ -88,6 +88,8 @@ def getNextQuestion(global_state):
 		lasts.append(True)
 	else:
 		lasts.append(False)
+		
+	print lasts
 	#calculate the nature of next question
 	#choose next question according to nature
 	(nextNature,inf1,inf2)=calculateNatureOfNextQuestion(lasts,userState.inflexion_1,userState.inflexion_2)
@@ -96,12 +98,21 @@ def getNextQuestion(global_state):
 	qs=None
 	if nextNature==globals.tougherQuestion:
 		qs=fetchMoreDifficultQuestion(userState.theta,user)
+		print "Asking tougher"
+		userState.theta=qs.b
 	if nextNature==globals.easierQuestion:
 		qs=fetchLessDifficultQuestion(userState.theta,user)
+		print "Asking easier"
+		userState.theta=qs.b
 	if nextNature==globals.maxInfoQuestion:
-		qs=fetchMostInformativeQuestion(user)
+		b_mle=calculateMLE(userState.theta,user)
+		userState.theta=b_mle
+		qs=fetchMostInformativeQuestion(userState,user)
+		print "Asking max info"
+		# test is finished
+		userState.isTestFinished=True
 	#the latest(maximum possible) theta estimation, according to correctness of last answer
-	userState.theta=qs.b
+	
 	#at the end, save user state
 	userState.put()
 	return qs
@@ -140,15 +151,19 @@ class TestModule(webapp2.RequestHandler):
 		#see if test finished or not, in which case, printout score
 		if userState.isTestFinished:
 			#throw score
+			score=calculateMLE(userState.theta,user)
+			vals={'score':score}
+			template=jinjaEnv.get_template('score.html')
+			self.response.out.write(template.render(vals))
 			#return
 			return
 		allFaced=fetchAllQuestionsParamsTestModule(user)
 		question=None
 		if len(allFaced)==0:
 			#throw a median question
-			question=getFirstQuestion(user)
+			question=getFirstQuestion(userState,user)
 		else:
-			question=getNextQuestion(userState)
+			question=getNextQuestion(userState,user)
 		try:
 			answers=fetchAnswersOf(question)
 		except InvalidIdError:

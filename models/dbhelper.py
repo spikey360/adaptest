@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 
-import handlers.globals
-
 from objects import *
 from google.appengine.ext import ndb
+import handlers.globals
+#import handlers.computation
 import logging
 
 class InvalidIdError(Exception):
+	def __init__(self,q_id):
+		self.q_id=q_id
+	def __str__(self):
+		return str(self.q_id)
+
+class NoMoreQuestionError(Exception):
 	def __init__(self,q_id):
 		self.q_id=q_id
 	def __str__(self):
@@ -63,7 +69,7 @@ def fetchMoreDifficultQuestion(b,user):
 	for question in query:
 		if AlreadyMarked(user,question.key) == False:
 			return question
-	return False
+	raise NoMoreQuestionError(b)
 
 def AlreadyMarked(user,question_key):
 	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.question==question_key,AnsweredQuestion.evaluation==True))
@@ -79,17 +85,43 @@ def clearUserTestAnswers(user):
 
 def fetchLessDifficultQuestions(b):
 	query=Question.query(Question.b<=b)
-	return query.fetch()
+	return query.order(-Question.b).fetch()
 
 def fetchLessDifficultQuestion(b,user):
 	query=fetchLessDifficultQuestions(b)
 	for question in query:
 		if AlreadyMarked(user,question.key) == False:
 			return question
-	return False #should ideally throw an exception
+	raise NoMoreQuestionError(b)
 
-def fetchMostInformativeQuestion(user):
-	return fetchMoreDifficultQuestion(5.0,user) #TODO implement this to find the question with maximum information
+def fetchMostInformativeQuestion(userState,user):
+	#return fetchMoreDifficultQuestion(5.0,user) #TODO implement this to find the question with maximum information
+	#get all questions user has not answered yet
+	faced_question_keys=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True), projection=[AnsweredQuestion.question]).fetch()
+	all_question_keys=Question.query().fetch()
+	#not_faced_keys=[nf for nf in all_question_keys not in faced_question_keys]
+	
+	#faced_list=[]
+	#for aq in faced:
+	#	faced_list.append(Question.query(Question.key==aq.question))
+	#faced_questions=set(faced_list)
+	#all_questions=set(Question.query().fetch())
+	#remaining_questions=all_questions.difference(faced_questions)
+	#remaining=list(remaining_questions)
+	#calculate item information for each of those questions, with theta from userState
+	maxI=0
+	maxQ=None
+	for q in all_question_keys:
+		if q not in faced_question_keys:
+			question=Question.query(Question.key==q.key).get()
+			i=handlers.computation.calculateItemInformation(question.a,question.b,question.c,userState.theta)
+			if i> maxI:
+				maxQ=question
+	#sort descending, throw the first question
+	if maxQ != None:
+		return maxQ
+	else:
+		raise NoMoreQuestionError(userState.theta)
 
 def isCorrectAnswer(a_id):
 	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))
@@ -118,6 +150,7 @@ def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta):
 		instance.theta=currentTheta
 		instance.inflexion_1=False # first time
 		instance.inflexion_2=False # neither of them are activated
+		instance.isTestFinished=False
 		instance.put()
 	return
 
@@ -164,7 +197,7 @@ def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
 	return insertQuestionAnswered(user,question.key,answer.key,evaluation=True)
 	
 def fetchAllQuestionsParamsTestModule(user):
-	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True))
+	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True)).order(AnsweredQuestion.time)
 	params=[]
 	if query.count()>=2:	#the user must answer atleast 2 questions :)
 		for instance in query:

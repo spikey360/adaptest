@@ -86,8 +86,33 @@ def calculateItemInformation(a,b,c,theta):
 	p=calculateP(theta,a,b,c)
 	q=1.0-p
 	z=p-c
-	m=1-c
+	m=1.0-c
+	#if m == 0:
+	#	print ">>>>>>>>>>",a,b,c,theta
 	i=a*a*z*z*q/(m*m*p)
 	return i
+
+def calculateMLE(presentTheta,user):
+	#Maximum Likelihood Estimation
+	precision=0.1
+	#http://www.tc.umn.edu/~nydic001/docs/unpubs/MML_in_IRT_Presentation.pdf ;page 21
+	#iterate as many times unless theta_cap becomes less than or equal to precision
+	allFaced=dbhelper.fetchAllQuestionsParamsTestModule(user)
+	num=0
+	denom=0
+	theta_cap=presentTheta
+	while True:
+		for (a,b,c,u) in allFaced:
+			p=calculateP(theta_cap,a,b,c)
+			q=1-p
+			num+=(u-p)*(p-c)/(p*(1-c)*(1-c))
+			denom+=calculateItemInformation(a,b,c,theta_cap)
+		del_theta=num/denom
+		theta_cap+=del_theta
+		se=1/math.sqrt(denom)
+		if se<=precision:
+			print "SE:",se
+			break
+	return theta_cap
 
 
