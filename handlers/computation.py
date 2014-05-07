@@ -102,15 +102,20 @@ def calculateMLE(presentTheta,user):
 	denom=0
 	theta_cap=presentTheta
 	while True:
+		num=0
+		denom=0
 		for (a,b,c,u) in allFaced:
+			print ">>>>",theta_cap,a,b,c
 			p=calculateP(theta_cap,a,b,c)
-			q=1-p
-			num+=(u-p)*(p-c)/(p*(1-c)*(1-c))
+			#q=1.0-p
+			num+=(-a)*(u-p)*(p-c)/(p*(1-c))
 			denom+=calculateItemInformation(a,b,c,theta_cap)
+		print ">>",num,denom
 		del_theta=num/denom
+		print ">",del_theta
 		theta_cap+=del_theta
 		se=1/math.sqrt(denom)
-		if se<=precision:
+		if del_theta<=precision:
 			print "SE:",se
 			break
 	return theta_cap
