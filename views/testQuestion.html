@@ -10,7 +10,7 @@ function clickOn30Sec()
 {
 	var endEpoch={{ endTime }};	//received from server :)
 	var countdown = document.getElementById('txt');	// update the tag with id "txt" every 1 second aka naive timer :)
-	setInterval(function() 
+	var timer=setInterval(function() 
 	{
 	var currentEpoch=parseInt((new Date).getTime()/1000);
 	var secondsLeft=endEpoch-currentEpoch;
@@ -20,7 +20,10 @@ function clickOn30Sec()
 		else
 			countdown.innerHTML = "";
 	else
+	{	
+		clearInterval(timer);
 		document.getElementById('submitBtn').click();
+	}
 	},1000);
 }
 </script>
@@ -56,7 +59,7 @@ Choose the correct Option <div id="txt" align="right"></div>
 	</div> 
 	<br><br>
 	<div>
-		<tr><td></td><td><input id="submitBtn" type="submit" value="Submit"><input type="button" value="Skip" onclick="skip()"></td></tr>
+		<tr><td></td><td><input id="submitBtn" type="submit" value="Answer!"><input type="button" value="Skip" onclick="skip()"></td></tr>
 	</div>    
 </form>
 

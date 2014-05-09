@@ -3,8 +3,8 @@
 from math import fabs
 
 correctAnswer=1.0
-incorrectAnswer=-1.0
-passAnswer=0.0
+incorrectAnswer=0.0
+passAnswer=0.33
 
 #first function in this accursed file :D
 def identicalTo(numberA,numberB,marginOfError=0.01):

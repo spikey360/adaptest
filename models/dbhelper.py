@@ -5,6 +5,11 @@ import handlers.globals
 from objects import *
 from google.appengine.ext import ndb
 import logging
+import jinja2
+import os
+import random
+
+jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
 class InvalidIdError(Exception):
 	def __init__(self,q_id):
@@ -27,7 +32,7 @@ def getAnswer(a_id):
 		return query.get()
 	else:
 		raise InvalidIdError(a_id)
-		
+
 def getPassedAnswer():
 	#fetch it
 	query=Answer.query(Answer.answer=='~pass~')
@@ -77,7 +82,7 @@ def clearUserTestAnswers(user):
 	return
 
 def fetchLessDifficultQuestions(b):
-	query=Question.query(Question.b<=b).order(Question.b)
+	query=Question.query(Question.b<=b).order(-Question.b)
 	return query.fetch()
 
 def fetchLessDifficultQuestion(b,user):
@@ -162,26 +167,29 @@ def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
 def fetchAllQuestionsParamsTestModule(user):
 	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True))
 	params=[]
-	if query.count()>=2:	#the user must answer atleast 2 questions :)
-		for instance in query:
-			currentQuestion=instance.question
-			question=fetchQuestion(currentQuestion.id())
-			a=(question.a)
-			b=(question.b)
-			c=(question.c)
-			params.append(a)
-			params.append(b)
-			params.append(c)
-			u=handlers.globals.incorrectAnswer
-			if instance.answer==getPassedAnswer():
-				u=handlers.globals.passAnswer
-			elif isCorrectAnswer(instance.answer.id()):
-				u=handlers.globals.correctAnswer
-			params.append(u)
-	else:
-
-		return params
-	return params
+	#logging.info('\nPARAM QUERY COUNT :%s'%query.count())
+	while True:
+		if query.count()>=10:	#the user must answer atleast 2 questions :)
+			for instance in query:
+				currentQuestion=instance.question
+				question=fetchQuestion(currentQuestion.id())
+				a=(question.a)
+				b=(question.b)
+				c=(question.c)
+				params.append(a)
+				params.append(b)
+				params.append(c)
+				u=handlers.globals.incorrectAnswer
+				if instance.answer==getPassedAnswer():
+					u=handlers.globals.passAnswer
+				elif isCorrectAnswer(instance.answer.id()):
+					u=handlers.globals.correctAnswer
+				params.append(u)
+			return params
+	#else:
+		#logging.info('\nThere 10 questions may not have been fetched!!')
+	#	return params
+	#return params
 
 def getSetting(prop_str):
 	query=Setting.query(Setting.prop==prop_str)

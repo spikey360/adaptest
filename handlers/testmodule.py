@@ -65,7 +65,7 @@ def evalNextQuestion(u,user,previousTheta):
 	params=fetchAllQuestionsParamsTestModule(user)
 	theta_S=previousTheta
 	while True:
-		#time.sleep(1) #since db operations are going to happen its beneficial to give waste some time here #not worth it
+		#time.sleep(1) #since db operations are going to happen its beneficial to waste some time here #notWorthIt
 		theta_S_1=getNewTheta(params,previousTheta)
 		if math.fabs(theta_S_1-theta_S) <=0.2:
 			break
@@ -76,6 +76,7 @@ def evalNextQuestion(u,user,previousTheta):
 def getNewTheta(params,theta_S):
 	sumNumerator=0
 	sumDenominator=0.00000001	#just incase the for loop does not get executed!
+	logging.info('\nInside getNewTheta %s'%theta_S)
 	for x in range(0, int(len(params)/4)):
 		P=float(calculateP(theta_S,params[x*4],params[x*4+1],params[x*4+2]))
 		#sumNumerator=sumNumerator-params[x*4]*(params[x*4+3]-P) #original formula :/
@@ -116,7 +117,10 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 		self.response.out.write(templateMessage.render(vals))
 		return
 	time.sleep(1)
-	q=fetchMoreDifficultQuestion(nextTheta,currentUser)
+	if float(currentUserGlobals.theta) < nextTheta:
+		q=fetchMoreDifficultQuestion(nextTheta,currentUser)
+	else:
+		q=fetchLessDifficultQuestion(nextTheta,currentUser)
 	logging.info('\nq=%s\n'%q)
 	if q == False:
 		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
@@ -135,8 +139,8 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 ### SRC : http://luna.cas.usf.edu/~mbrannic/files/pmet/irt.htm #################################
 ################################################################################################
 
-def checkTheta(nextTheta):
-	if nextTheta <0 or nextTheta>10:
+def checkTheta(self,nextTheta):
+	if nextTheta <=0 or nextTheta>10.5:
 		vals={'message':'Your test has ended!<br>Result :<h1>Inconclusive</h1><br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
 		templateMessage=jinjaEnv.get_template('message.html')
 		self.response.out.write(templateMessage.render(vals))
@@ -155,21 +159,21 @@ def fetchNextQuestionParams(self,user, pastAnswer, currentAnswer, currentTheta, 
 	if pastAnswer=='correct' and currentAnswer=='correct':
 		nextTheta=currentTheta+(0.5)
 		logging.info('\nnextTheta=%s\n'%nextTheta)
-		checkTheta(nextTheta)
+		checkTheta(self, nextTheta)
 		updateOrInsertScores(user,upperBound=nextTheta)
 		time.sleep(0.5)
 		q=fetchMoreDifficultQuestion(nextTheta,user)
 	elif currentAnswer=='incorrect':
 		nextTheta=currentTheta-(0.5)
 		logging.info('\nnextTheta=%s\n'%nextTheta)
-		checkTheta(nextTheta)
+		checkTheta(self, nextTheta)
 		updateOrInsertScores(user,lowerBound=nextTheta)
 		time.sleep(0.5)
 		q=fetchLessDifficultQuestion(nextTheta,user)
 	else:
 		DisplayResult(self,user)
 	
-	time.sleep(1)
+	time.sleep(0.75)
 	if q == False:
 		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
 		templateMessage=jinjaEnv.get_template('message.html')
@@ -207,6 +211,92 @@ def getNextQuestion2(self, givenAnswerID, currentUser):
 ################################################################################################
 
 
+################################# ALGO 3 START##################################################
+### SRC : Pg 85 + Mixed (AP+GP Series) #########################################################
+################################################################################################
+
+def DisplayResultPg85(self,theta):
+	vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(theta)}
+	template=jinjaEnv.get_template('message.html')
+	self.response.out.write(template.render(vals))
+	return
+
+def getThetaResult(user):
+	params=fetchAllQuestionsParamsTestModule(user)
+	logging.info('\nParams @getThetaResult :%s'%params)
+	theta_S=1
+	while True:
+		#time.sleep(1) #since db operations are going to happen its beneficial to waste some time here #notWorthIt
+		theta_S_1=getNewTheta(params,theta_S)
+		if math.fabs(theta_S_1-theta_S) <=0.2:
+			break
+		else:
+			theta_S=theta_S_1
+	logging.info('\nend of @getThetaResult')
+	return theta_S
+
+	
+def fetchNextQuestionParams2(self,user, pastAnswer, currentAnswer, currentTheta, TotalQuestions):
+	q=False
+	nextTheta=0
+	
+	if(TotalQuestions==0):
+		temp=getThetaResult(user)
+		DisplayResultPg85(self,temp)
+	
+	logging.info('\nQuestion No.=%s\n'%TotalQuestions)
+	if currentAnswer=='correct':
+		nextTheta=currentTheta*(1.1665290394)
+		logging.info('\nnextTheta v3.0=%s\n'%nextTheta)
+		checkTheta(self, nextTheta)
+		time.sleep(0.5)
+		q=fetchMoreDifficultQuestion(nextTheta,user)
+	elif currentAnswer=='incorrect':
+		nextTheta=currentTheta-(.625)
+		logging.info('\nnextTheta v3.1=%s\n'%nextTheta)
+		checkTheta(self, nextTheta)
+		time.sleep(0.5)
+		q=fetchLessDifficultQuestion(nextTheta,user)
+	
+	time.sleep(0.75)
+	if q == False:
+		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
+		templateMessage=jinjaEnv.get_template('message.html')
+		self.response.out.write(templateMessage.render(vals))
+	else:
+		questionTimerEnd=round(time.time()+32.5)
+		update_or_Insert(user, str(TotalQuestions), str(q), str(questionTimerEnd),nextTheta,currentAnswer)
+		time.sleep(1.5)
+		self.redirect("/test")
+	return
+
+
+def getNextQuestion3(self, givenAnswerID, currentUser):
+	#get the currentUser global instances
+	currentUserGlobals=fetchGlobal(currentUser)
+	TotalQuestions=int(currentUserGlobals.TotalQuestions)
+	TotalQuestions=TotalQuestions-1
+	pastAnswer=currentUserGlobals.pastAnswer
+	currentAnswer='incorrect'
+	
+	if givenAnswerID == '':
+		#no scope of passing here and(or) also time
+		currentAnswer='incorrect'
+	else:
+		CorrectAnswer=isCorrectAnswer(int(givenAnswerID))
+		if CorrectAnswer:
+			currentAnswer='correct'
+	
+	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,0)
+	fetchNextQuestionParams2(self,currentUser, pastAnswer, currentAnswer, currentUserGlobals.theta, TotalQuestions)
+	return
+
+################################# ALGO 3 END ###################################################
+### SRC : Pg 85 + Mixed (AP+GP Series) #########################################################
+################################################################################################
+
+
+
 class TestModule(webapp2.RequestHandler):
 	def post(self):
 		timeAnswerWasPosted=time.time()
@@ -214,7 +304,8 @@ class TestModule(webapp2.RequestHandler):
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
 		#getNextQuestion(self, timeAnswerWasPosted, self.request.get('option'), user)
-		getNextQuestion2(self, self.request.get('option'), user)
+		#getNextQuestion2(self, self.request.get('option'), user)
+		getNextQuestion3(self, self.request.get('option'), user)
 	
 	def get(self):
 		user=users.get_current_user()
@@ -236,4 +327,3 @@ class TestModule(webapp2.RequestHandler):
 			vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(currUser.theta)}
 			template=jinjaEnv.get_template('message.html')
 			self.response.out.write(template.render(vals))
-

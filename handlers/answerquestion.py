@@ -26,6 +26,7 @@ def createDefaultCredential(user, theta=5.0):
 		es.user=user
 	es.estimatedTheta=theta
 	es.put()
+	return
 
 #AnswerQuestion
 #Handler class for the page where the user can answer from mutiple choices
@@ -51,6 +52,7 @@ class AnswerQuestion(webapp2.RequestHandler):
 		template=jinjaEnv.get_template('answerQuestion.html')
 		#write it to the handler's output stream
 		self.response.out.write(template.render(vals))
+		return
 		
 	#overriding the function to be executed for a POST request
 	def post(self, q_id):
@@ -85,7 +87,8 @@ class AnswerQuestion(webapp2.RequestHandler):
 			#	self.response.out.write("F")
 			result=insertQuestionAnswered(user,question.key,answer.key)
 			self.response.out.write(result)
+			
 		else:
 			#invalid answer given
 			self.response.out.write("F")
-
+		
