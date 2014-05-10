@@ -65,7 +65,7 @@ def evalNextQuestion(u,user,previousTheta):
 	params=fetchAllQuestionsParamsTestModule(user)
 	theta_S=previousTheta
 	while True:
-		#time.sleep(1) #since db operations are going to happen its beneficial to give waste some time here #not worth it
+		#time.sleep(1) #since db operations are going to happen its beneficial to waste some time here #notWorthIt
 		theta_S_1=getNewTheta(params,previousTheta)
 		if math.fabs(theta_S_1-theta_S) <=0.2:
 			break
@@ -135,7 +135,7 @@ def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUse
 ### SRC : http://luna.cas.usf.edu/~mbrannic/files/pmet/irt.htm #################################
 ################################################################################################
 
-def checkTheta(nextTheta):
+def checkTheta(self,nextTheta):
 	if nextTheta <0 or nextTheta>10:
 		vals={'message':'Your test has ended!<br>Result :<h1>Inconclusive</h1><br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
 		templateMessage=jinjaEnv.get_template('message.html')
@@ -155,21 +155,21 @@ def fetchNextQuestionParams(self,user, pastAnswer, currentAnswer, currentTheta, 
 	if pastAnswer=='correct' and currentAnswer=='correct':
 		nextTheta=currentTheta+(0.5)
 		logging.info('\nnextTheta=%s\n'%nextTheta)
-		checkTheta(nextTheta)
+		checkTheta(self, nextTheta)
 		updateOrInsertScores(user,upperBound=nextTheta)
 		time.sleep(0.5)
 		q=fetchMoreDifficultQuestion(nextTheta,user)
 	elif currentAnswer=='incorrect':
 		nextTheta=currentTheta-(0.5)
 		logging.info('\nnextTheta=%s\n'%nextTheta)
-		checkTheta(nextTheta)
+		checkTheta(self, nextTheta)
 		updateOrInsertScores(user,lowerBound=nextTheta)
 		time.sleep(0.5)
 		q=fetchLessDifficultQuestion(nextTheta,user)
 	else:
 		DisplayResult(self,user)
 	
-	time.sleep(1)
+	time.sleep(0.75)
 	if q == False:
 		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
 		templateMessage=jinjaEnv.get_template('message.html')
@@ -236,4 +236,3 @@ class TestModule(webapp2.RequestHandler):
 			vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(currUser.theta)}
 			template=jinjaEnv.get_template('message.html')
 			self.response.out.write(template.render(vals))
-
