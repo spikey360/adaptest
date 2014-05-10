@@ -243,17 +243,24 @@ def fetchNextQuestionParams2(self,user, pastAnswer, currentAnswer, currentTheta,
 	if(TotalQuestions==0):
 		temp=getThetaResult(user)
 		DisplayResultPg85(self,temp)
+		update_or_Insert(user, str(TotalQuestions), str(0), str(0),temp,currentAnswer)
 	
 	logging.info('\nQuestion No.=%s\n'%TotalQuestions)
 	if currentAnswer=='correct':
 		nextTheta=currentTheta*(1.1665290394)
-		logging.info('\nnextTheta v3.0=%s\n'%nextTheta)
+		logging.info('\nnextTheta (c)=%s\n'%nextTheta)
 		checkTheta(self, nextTheta)
 		time.sleep(0.5)
 		q=fetchMoreDifficultQuestion(nextTheta,user)
 	elif currentAnswer=='incorrect':
 		nextTheta=currentTheta-(.625)
-		logging.info('\nnextTheta v3.1=%s\n'%nextTheta)
+		logging.info('\nnextTheta (i)=%s\n'%nextTheta)
+		checkTheta(self, nextTheta)
+		time.sleep(0.5)
+		q=fetchLessDifficultQuestion(nextTheta,user)
+	else:	#passed ofc
+		nextTheta=currentTheta-(.4)
+		logging.info('\nnextTheta (p)=%s\n'%nextTheta)
 		checkTheta(self, nextTheta)
 		time.sleep(0.5)
 		q=fetchLessDifficultQuestion(nextTheta,user)
@@ -281,7 +288,7 @@ def getNextQuestion3(self, givenAnswerID, currentUser):
 	
 	if givenAnswerID == '':
 		#no scope of passing here and(or) also time
-		currentAnswer='incorrect'
+		currentAnswer='passed'
 	else:
 		CorrectAnswer=isCorrectAnswer(int(givenAnswerID))
 		if CorrectAnswer:
@@ -316,14 +323,15 @@ class TestModule(webapp2.RequestHandler):
 		TotalQuestions=int(currUser.TotalQuestions)
 		questionTimerEnd=currUser.questionTimerEnd
 		if TotalQuestions>0:
-			questionNumber=10-TotalQuestions
+			questionNumber=globals.NumberOfQuestions-TotalQuestions
 			question=fetchQuestion(int((questionNumberToGive)))
 			answers=fetchAnswersOf(question)
 			qNo=str(questionNumber+1)
-			vals={'title':qNo,'endTime':questionTimerEnd,'question':question.question,'answers':answers,'questionID':questionNumberToGive,'current_user':user}
+			vals={'title':qNo,'endTime':questionTimerEnd,'question':'%s. %s'%(qNo,question.question),'answers':answers,'questionID':questionNumberToGive,'current_user':user}
 			template=jinjaEnv.get_template('testQuestion.html')
 			self.response.out.write(template.render(vals))
 		else:
-			vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(currUser.theta)}
+			temp=getThetaResult(user)
+			vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(temp)}
 			template=jinjaEnv.get_template('message.html')
 			self.response.out.write(template.render(vals))
