@@ -8,6 +8,8 @@ import logging
 import jinja2
 import os
 import random
+import time
+
 
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
@@ -40,6 +42,7 @@ def getPassedAnswer():
 		return query.get()
 	#else:
 	#	raise InvalidIdError(a_id)
+	
 
 def fetchAnswers(q_id):
 	question=None
@@ -96,6 +99,16 @@ def isCorrectAnswer(a_id):
 	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))
 	if query.count() == 1:
 		return query.get().correct
+	else:
+		raise InvalidIdError(a_id)
+
+def isPassedAnswer(a_id):
+	query=Answer.query(Answer.key==ndb.Key('Answer',a_id))
+	if query.count() == 1:
+		if query.get().answer=='~pass~':
+			return True
+		else:
+			return False
 	else:
 		raise InvalidIdError(a_id)
 		
@@ -167,30 +180,34 @@ def update_or_Insert_QuestionTestModule(q_id_str,a_id_str,user,u):
 def fetchAllQuestionsParamsTestModule(user):
 	query=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True))
 	params=[]
-	#logging.info('\nPARAM QUERY COUNT :%s'%query.count())
+	#this variable limits the number of times this loop will execute, which is 10secs tops (minus the time required for executing the other commands).
+	limiter=0
 	while True:
+		limiter=limiter+1
+		if(limiter>1000):
+			break
 		if query.count()>=10:	#the user must answer atleast 2 questions :)
 			for instance in query:
 				currentQuestion=instance.question
 				question=fetchQuestion(currentQuestion.id())
-				a=(question.a)
+				a=1.0
 				b=(question.b)
 				c=(question.c)
 				params.append(a)
 				params.append(b)
 				params.append(c)
 				u=handlers.globals.incorrectAnswer
-				if instance.answer==getPassedAnswer():
+				if isPassedAnswer(instance.answer.id()):
+					logging.info("pass answer here!")
 					u=handlers.globals.passAnswer
 				elif isCorrectAnswer(instance.answer.id()):
+					#logging.info("%s|%s"%(instance.answer,getPassedAnswer().answer))
 					u=handlers.globals.correctAnswer
 				params.append(u)
 			return params
-	#else:
-		#logging.info('\nThere 10 questions may not have been fetched!!')
-	#	return params
-	#return params
-
+		time.sleep(0.01)
+	return params
+	
 def getSetting(prop_str):
 	query=Setting.query(Setting.prop==prop_str)
 	return query.get()
