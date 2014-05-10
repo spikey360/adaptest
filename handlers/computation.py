@@ -7,6 +7,7 @@ from models.objects import Question
 from models.dbhelper import InvalidIdError
 from handlers.performestimation import DistributionAnalyzer
 from google.appengine.ext import ndb
+import logging
 
 answers=None
 correct_distribution=None
@@ -23,6 +24,7 @@ interval_b=0.1
 
 def calculateP(theta,a,b,c):
 	k=-a*(theta-b)
+	#logging.info('k=%s'%k)
 	P=c+(1.0-c)/(1.0+math.exp(k))
 	return P
 

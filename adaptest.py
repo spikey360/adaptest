@@ -10,6 +10,7 @@ import handlers.addestimationcredential
 import handlers.computation
 import handlers.parametercalculator
 import handlers.testmodule
+import handlers.addquestion2
 import test.unittestinghandler
 
 ######################
@@ -25,6 +26,7 @@ ParameterCalculatorHandler=handlers.parametercalculator.ParameterCalculatorHandl
 ParameterCalculatorWorker=handlers.parametercalculator.ParameterCalculatorWorker
 TestModule=handlers.testmodule.TestModule
 UnitTestingHandler=test.unittestinghandler.UnitTestingHandler
+MultiDummyQuestionInserver=handlers.addquestion2.AddQuestion2
 ######################
 
 app=webapp2.WSGIApplication(
@@ -40,6 +42,7 @@ app=webapp2.WSGIApplication(
 ('/estim/admin/tasks/calculateparams',ParameterCalculatorWorker),
 ('/test',TestModule),
 ('/unittest',UnitTestingHandler),
+('/mInsert',MultiDummyQuestionInserver),
 ],
 debug=True
 )
