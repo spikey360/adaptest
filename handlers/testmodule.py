@@ -73,10 +73,18 @@ def getNextQuestion(global_state,user):
 	#get the list of all questions faced
 	allFaced=fetchAllQuestionsParamsTestModule(user)
 	userState=fetchGlobal(user)
+	allFacedCount=len(allFaced)
 	print allFaced
 	#get the last two questions, observe the trend
-	(a1,b1,c1,sec_last)=allFaced[len(allFaced)-2]
-	(a2,b2,c2,last)=allFaced[len(allFaced)-1]
+	if allFacedCount>=2:
+		(a1,b1,c1,sec_last)=allFaced[len(allFaced)-2]
+		(a2,b2,c2,last)=allFaced[len(allFaced)-1]
+	else:
+		#faced only 1 question till now
+		(a1,b1,c1,sec_last)=allFaced[len(allFaced)-1]
+		(a2,b2,c2,last)=allFaced[len(allFaced)-1]
+		#filling with duplicate values
+		
 	lasts=[]
 	
 	
@@ -159,7 +167,8 @@ class TestModule(webapp2.RequestHandler):
 			return
 		allFaced=fetchAllQuestionsParamsTestModule(user)
 		question=None
-		if len(allFaced)==0:
+		print "faced",len(allFaced)
+		if len(allFaced)<1:
 			#throw a median question
 			question=getFirstQuestion(userState,user)
 		else:
