@@ -97,8 +97,6 @@ def calculateMLE(presentTheta,user):
 	precision=0.1
 	#iterate as many times unless theta_cap becomes less than or equal to precision
 	allFaced=dbhelper.fetchAllQuestionsParamsTestModule(user)
-	num=0
-	denom=0
 	theta_cap=presentTheta
 	
 	while True:
@@ -116,14 +114,14 @@ def calculateMLE(presentTheta,user):
 		print ">",del_theta
 		theta_cap+=del_theta
 		se_now=1/math.sqrt(denom)
-		if se_now>se:
-			#increasing se, divergent, exit
-			print "SE:",se
-			break
-		else:
-			se=se_now
+		#if se_now>se:
+		#	#increasing se, divergent, exit
+		#	print "SE:",se
+		#	break
+		#else:
+		#	se=se_now
 		if del_theta<=precision:
-			print "SE:",se
+			print "SE:",se_now
 			break
 	return theta_cap
 
