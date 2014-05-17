@@ -23,7 +23,7 @@ class InvalidTimeLeftError(Exception):
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
 #####################################################################
-
+jumpFactor=1.05
 	
 	
 
@@ -69,7 +69,7 @@ def getFirstQuestion(global_state,user):
 	return qs
 
 def getNextQuestion(global_state,user):
-
+	global jumpFactor
 	#get the list of all questions faced
 	allFaced=fetchAllQuestionsParamsTestModule(user)
 	userState=fetchGlobal(user)
@@ -105,7 +105,7 @@ def getNextQuestion(global_state,user):
 	userState.inflexion_2=inf2
 	qs=None
 	if nextNature==globals.tougherQuestion:
-		qs=fetchMoreDifficultQuestion(userState.theta,user)
+		qs=fetchMoreDifficultQuestion(userState.theta*jumpFactor,user)
 		print "Asking tougher"
 		userState.theta=qs.b
 	if nextNature==globals.easierQuestion:
