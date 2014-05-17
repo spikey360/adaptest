@@ -3,7 +3,7 @@
 from math import fabs
 
 correctAnswer=1.0
-incorrectAnswer=-1.0
+incorrectAnswer=0.0
 passAnswer=0.0
 
 tougherQuestion=1000
