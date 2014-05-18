@@ -97,22 +97,17 @@ def fetchLessDifficultQuestion(b,user):
 def fetchMostInformativeQuestion(userState,user):
 	#return fetchMoreDifficultQuestion(5.0,user) #TODO implement this to find the question with maximum information
 	#get all questions user has not answered yet
-	faced_question_keys=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True), projection=[AnsweredQuestion.question]).fetch() #FIXME pick up the questions themselves, instead of keys
+	faced_question_keys=AnsweredQuestion.query(ndb.AND(AnsweredQuestion.user==user,AnsweredQuestion.evaluation==True), projection=[AnsweredQuestion.question]).fetch()
+	#pick only the questions, drop them into an array
+	fqk=[]
+	for m in faced_question_keys:
+		fqk.append(m.question)
 	all_question_keys=Question.query().fetch()
-	#not_faced_keys=[nf for nf in all_question_keys not in faced_question_keys]
-	
-	#faced_list=[]
-	#for aq in faced:
-	#	faced_list.append(Question.query(Question.key==aq.question))
-	#faced_questions=set(faced_list)
-	#all_questions=set(Question.query().fetch())
-	#remaining_questions=all_questions.difference(faced_questions)
-	#remaining=list(remaining_questions)
 	#calculate item information for each of those questions, with theta from userState
 	maxI=0
 	maxQ=None
 	for q in all_question_keys:
-		if q not in faced_question_keys:
+		if q.key not in fqk:
 			question=Question.query(Question.key==q.key).get() #FIXME too many db reads
 			i=handlers.computation.calculateItemInformation(question.a,question.b,question.c,userState.theta)
 			if i> maxI:

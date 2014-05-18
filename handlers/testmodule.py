@@ -118,7 +118,7 @@ def getNextQuestion(global_state,user):
 		qs=fetchMostInformativeQuestion(userState,user)
 		print "Asking max info"
 		# test is finished
-		userState.isTestFinished=True
+		#userState.isTestFinished=True
 	#the latest(maximum possible) theta estimation, according to correctness of last answer
 	
 	#at the end, save user state
@@ -131,6 +131,7 @@ class TestModule(webapp2.RequestHandler):
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
+		userState=fetchGlobal(user)
 		a_id=self.request.get('answer')
 		question=None
 		answer=None
@@ -149,6 +150,12 @@ class TestModule(webapp2.RequestHandler):
 			
 			
 		#decide if data is sufficient to end test
+		if userState.inflexion_1 and userState.inflexion_2:
+			(b_mle,se)=calculateMLE(userState.theta,user)
+			if se<0.1:
+				#precise enough, end test
+				userState.isTestFinished=True
+				userState.put()
 		return
 	def get(self):
 		#required for getting question, options and time
