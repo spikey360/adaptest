@@ -105,17 +105,27 @@ def getNextQuestion(global_state,user):
 	userState.inflexion_2=inf2
 	qs=None
 	if nextNature==globals.tougherQuestion:
-		qs=fetchMoreDifficultQuestion(userState.theta*jumpFactor,user)
+		try:
+			qs=fetchMoreDifficultQuestion(userState.theta*jumpFactor,user)
+		except NoMoreQuestionError:
+			#handle error with a page, terminate test
+			raise
 		print "Asking tougher"
 		userState.theta=qs.b
 	if nextNature==globals.easierQuestion:
-		qs=fetchLessDifficultQuestion(userState.theta,user)
+		try:
+			qs=fetchLessDifficultQuestion(userState.theta,user)
+		except NoMoreQuestionError:
+			raise
 		print "Asking easier"
 		userState.theta=qs.b
 	if nextNature==globals.maxInfoQuestion:
 		(b_mle,se)=calculateMLE(userState.theta,user)
 		userState.theta=b_mle
-		qs=fetchMostInformativeQuestion(userState,user)
+		try:
+			qs=fetchMostInformativeQuestion(userState,user)
+		except NoMoreQuestionError:
+			raise
 		print "Asking max info"
 		# test is finished
 		if userState.inflexion_1 and userState.inflexion_2:
@@ -186,7 +196,13 @@ class TestModule(webapp2.RequestHandler):
 			#throw a median question
 			question=getFirstQuestion(userState,user)
 		else:
-			question=getNextQuestion(userState,user)
+			try:
+				question=getNextQuestion(userState,user)
+			except NoMoreQuestionError:
+				vals={"message":"Inconclusive"}
+				template=jinjaEnv.get_template('test_error.html')
+				self.response.out.write(template.render(vals))
+				return
 		try:
 			answers=fetchAnswersOf(question)
 		except InvalidIdError:
