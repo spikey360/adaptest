@@ -183,7 +183,8 @@ class TestModule(webapp2.RequestHandler):
 		#see if test finished or not, in which case, printout score
 		if userState.isTestFinished:
 			#throw score
-			(score,se)=calculateMLE(userState.theta,user)
+			#(score,se)=calculateMLE(userState.theta,user)
+			score=userState.theta
 			vals={'score':score}
 			template=jinjaEnv.get_template('score.html')
 			self.response.out.write(template.render(vals))

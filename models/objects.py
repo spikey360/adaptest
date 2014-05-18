@@ -41,16 +41,6 @@ class AnsweredQuestion(ndb.Model):
 	#the time at which this was given
 	time=ndb.DateTimeProperty(auto_now=True)
 
-class Test(ndb.Model):
-	user=ndb.KeyProperty(User)
-	start=ndb.DateTimeProperty()
-	durationLeftInSeconds=ndb.IntegerProperty()
-
-class TestSheet(ndb.Model):
-	test=ndb.KeyProperty(Test)
-	question=ndb.KeyProperty(Question)
-	answer=ndb.KeyProperty(Answer)
-	
 class EstimationCredentials(ndb.Model):
 	user=ndb.UserProperty()
 	estimatedTheta=ndb.FloatProperty()
@@ -64,7 +54,9 @@ class globalInstances(ndb.Model):
 	#first question right/wrong after activating inflexion_1
 	inflexion_2=ndb.BooleanProperty()
 	isTestFinished=ndb.BooleanProperty()
-
+	start=ndb.DateTimeProperty(auto_now_add=True)
+	durationInSeconds=ndb.IntegerProperty()
+	
 class Setting(ndb.Model):
 	prop=ndb.StringProperty()
 	val=ndb.StringProperty()

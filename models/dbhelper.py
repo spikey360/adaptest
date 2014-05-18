@@ -126,34 +126,24 @@ def isCorrectAnswer(a_id):
 	else:
 		raise InvalidIdError(a_id)
 		
-def update_or_Insert(user, currQuestion, questionNumber, timer, currentTheta):
+def initiateUserState(user):
 	query=globalInstances.query(globalInstances.examinee==user)
-	
-	if query.count()>=1:	# time for update
-		for currentUser in query:
-			currentUser.TotalQuestions=currQuestion
-			currentUser.questionNumberToGive=questionNumber
-			currentUser.questionTimerEnd=timer
-			currentUser.theta=currentTheta
-			currentUser.put()
-	else:
+	if query.count()==0:
 		# Globals for the currentUser does not exist, so create a new one :)
 		instance=globalInstances()
 		instance.examinee=user
-		instance.TotalQuestions=currQuestion
-		instance.questionNumberToGive=questionNumber
-		instance.questionTimerEnd=timer
-		instance.theta=currentTheta
+		instance.theta=5.0
 		instance.inflexion_1=False # first time
 		instance.inflexion_2=False # neither of them are activated
 		instance.isTestFinished=False
+		instance.durationInSeconds=3600
 		instance.put()
 	return
 
 def fetchGlobal(user):
-	#fetches all globals for the currentUser logged in/giving the test
-	query=globalInstances.query(globalInstances.examinee==user)
-	if query.count()==1:
+	#fetches all globals for the user in, latest first
+	query=globalInstances.query(globalInstances.examinee==user).order(globalInstances.start)
+	if query.count()>=1:
 		return query.get()
 	else:
 		return None
