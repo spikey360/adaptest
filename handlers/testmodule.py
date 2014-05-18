@@ -24,7 +24,7 @@ jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("view
 
 #####################################################################
 jumpFactor=1.05
-	
+errorFactor=0.65	
 	
 
 #####################################################################
@@ -118,6 +118,12 @@ def getNextQuestion(global_state,user):
 		qs=fetchMostInformativeQuestion(userState,user)
 		print "Asking max info"
 		# test is finished
+		if userState.inflexion_1 and userState.inflexion_2:
+			(b_mle,se)=calculateMLE(userState.theta,user)
+			if se<errorFactor:
+				#precise enough, end test
+				userState.isTestFinished=True
+				
 		#userState.isTestFinished=True
 	#the latest(maximum possible) theta estimation, according to correctness of last answer
 	
@@ -127,6 +133,7 @@ def getNextQuestion(global_state,user):
 	
 class TestModule(webapp2.RequestHandler):
 	def post(self,q_id):
+		global errorFactor
 		#required only for taking answers
 		user=users.get_current_user()
 		if not user:
@@ -152,7 +159,7 @@ class TestModule(webapp2.RequestHandler):
 		#decide if data is sufficient to end test
 		if userState.inflexion_1 and userState.inflexion_2:
 			(b_mle,se)=calculateMLE(userState.theta,user)
-			if se<0.1:
+			if se<errorFactor:
 				#precise enough, end test
 				userState.isTestFinished=True
 				userState.put()

@@ -112,6 +112,7 @@ def fetchMostInformativeQuestion(userState,user):
 			i=handlers.computation.calculateItemInformation(question.a,question.b,question.c,userState.theta)
 			if i> maxI:
 				maxQ=question
+				maxI=i
 	#sort descending, throw the first question
 	if maxQ != None:
 		return maxQ
