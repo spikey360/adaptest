@@ -113,7 +113,7 @@ def getNextQuestion(global_state,user):
 		print "Asking easier"
 		userState.theta=qs.b
 	if nextNature==globals.maxInfoQuestion:
-		b_mle=calculateMLE(userState.theta,user)
+		(b_mle,se)=calculateMLE(userState.theta,user)
 		userState.theta=b_mle
 		qs=fetchMostInformativeQuestion(userState,user)
 		print "Asking max info"
@@ -159,7 +159,7 @@ class TestModule(webapp2.RequestHandler):
 		#see if test finished or not, in which case, printout score
 		if userState.isTestFinished:
 			#throw score
-			score=calculateMLE(userState.theta,user)
+			(score,se)=calculateMLE(userState.theta,user)
 			vals={'score':score}
 			template=jinjaEnv.get_template('score.html')
 			self.response.out.write(template.render(vals))
