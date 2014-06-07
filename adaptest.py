@@ -41,6 +41,7 @@ app=webapp2.WSGIApplication(
 ('/estim/admin/calculateparams',ParameterCalculatorHandler),
 ('/estim/admin/tasks/calculateparams',ParameterCalculatorWorker),
 ('/test',TestModule),
+('/test/(\S+)',TestModule),
 ('/unittest',UnitTestingHandler),
 ('/mInsert',MultiDummyQuestionInserver),
 ],

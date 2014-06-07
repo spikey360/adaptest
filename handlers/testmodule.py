@@ -10,9 +10,8 @@ import globals
 
 #import everthing :P cuz soon , we are gonna need more than a few of the dbhelper functions 
 from models.dbhelper import *
-
 from google.appengine.api import users
-from computation import calculateP
+from computation import calculateP, calculateMLE
 
 class InvalidTimeLeftError(Exception):
 	def __init__(self,timeLeft):
@@ -24,315 +23,199 @@ class InvalidTimeLeftError(Exception):
 jinjaEnv=jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname("views/")))
 
 
+#####################################################################
+jumpFactor=1.05
+errorFactor=0.65	
 
-################################# PG 85 ALGO START##################################################
-def evalFirstQuestion(u,timeLeft,c):
-	#worst naive algo i could come up with in a jiffy to test the rest with summation 
-	#ajust this tempTheta with the b value of the question and try and give one with b=~4-6
-	if timeLeft<0 or timeLeft>30:
-		raise InvalidTimeLeftError(timeLeft)
-	tempTheta=2.5
-	if(u==globals.incorrectAnswer):
-		#time is not taken into consideration if answer is wrong
-		tempTheta=tempTheta/2
-	else:
-		#time is considered a lot of question is passed, guessing is considered if timeTaken < 10 sec
-		#else only solve time is taken :)
-		if (u==globals.passAnswer):
-		#pass
-			#best case 1.15x
-			#worst case 1.05x
-			tempTheta=tempTheta*( timeLeft/300+1.05)
+
+#####################################################################
+
+def calculateNatureOfNextQuestion(lastTwo_bool,infl1_bool,infl2_bool):
+	#returns tougherQuestion, easierQuestion, maxInfoQuestion
+	askTough=False
+	
+	if lastTwo_bool[0] and lastTwo_bool[1]:
+		#trend is, user tends to give correct answer, requires tougher question
+		askTough=True
+	if not lastTwo_bool[0] and not lastTwo_bool[1]:
+		#trend is, user tends to give wrong answer, requires easier
+		askTough=False
+	if not lastTwo_bool[0] and lastTwo_bool[1]:
+		#user has hit inflexion, if 1 is hit, then this is 2
+		if infl1_bool:
+			infl2_bool=True
 		else:
-		#correct
-			if timeLeft>=18:
-				#best case 1.40
-				#worst case 1.20
-				tempTheta=tempTheta*(-timeLeft/60+1.7)
-			else:
-				#best case 1.40
-				#worst case 1.20
-				tempTheta=tempTheta*(timeLeft/90+1.2)
-	#logging.info('tempTheta=%s'%tempTheta)
-	return tempTheta
-
-def evalNextQuestion(u,user,previousTheta):
-	#part of the formula is taken from Pg 85 and part developed by me and used some part of st. line eqn
-	#estimate the user's theta and get the next question based on this theta
-	
-	#very fancy way to do 'do-while' loop in python, but i dont complain if it gets the job done
-	#get the question params
-	params=fetchAllQuestionsParamsTestModule(user)
-	theta_S=previousTheta
-	while True:
-		#time.sleep(1) #since db operations are going to happen its beneficial to waste some time here #notWorthIt
-		theta_S_1=getNewTheta(params,previousTheta)
-		if math.fabs(theta_S_1-theta_S) <=0.2:
-			break
+			infl1_bool=True
+			askTough=True
+	if lastTwo_bool[0] and not lastTwo_bool[1]:
+		if infl1_bool:
+			infl2_bool=True
 		else:
-			theta_S=theta_S_1
-	return theta_S
-
-def getNewTheta(params,theta_S):
-	sumNumerator=0
-	sumDenominator=0.00000001	#just incase the for loop does not get executed!
-	logging.info('\nInside getNewTheta %s'%theta_S)
-	for x in range(0, int(len(params)/4)):
-		P=float(calculateP(theta_S,params[x*4],params[x*4+1],params[x*4+2]))
-		#sumNumerator=sumNumerator-params[x*4]*(params[x*4+3]-P) #original formula :/
-		sumNumerator=sumNumerator+params[x*4]*(params[x*4+3]-P)
-		sumDenominator=sumDenominator+(params[x*4]*params[x*4])*P*(1-P)
-	theta_S1=theta_S+(sumNumerator/sumDenominator)
-	return theta_S1
-
-
-def getNextQuestion(self, timeAnswerWasPostedToServer, givenAnswerID, currentUser):
-	#get the currentUser global instances
-	currentUserGlobals=fetchGlobal(currentUser)
-	TotalQuestions=int(currentUserGlobals.TotalQuestions)
-	TotalQuestions=TotalQuestions-1
-	questionTimerEnd=int(float(currentUserGlobals.questionTimerEnd))
-	timeRemaining=-int(float(timeAnswerWasPostedToServer))+questionTimerEnd
-	#u is the score given to the user, 1 if the answer is correct , 0 if its incorrect and 0.33 if passed :)
-	u=globals.incorrectAnswer
-	if givenAnswerID == '':
-		u=globals.passAnswer
+			infl1_bool=True
+			askTough=False
+	#now, decide the nature of question
+	if infl2_bool:
+		return (globals.maxInfoQuestion,infl1_bool,infl2_bool)
+	elif askTough:
+		return (globals.tougherQuestion,infl1_bool,infl2_bool)
+	#if incorrect answer/pass, ask an easier question till you get a correct answer
 	else:
-		CorrectAnswer=isCorrectAnswer(int(givenAnswerID))
-		if CorrectAnswer:
-			u=globals.correctAnswer
-	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,u)
-	if int(currentUserGlobals.TotalQuestions) == 10:
-		logging.info('\ntempTheta for question: %s'%currentUserGlobals.TotalQuestions)
-		nextTheta=evalFirstQuestion(u,timeRemaining,0.25)
+		return (globals.easierQuestion,infl1_bool,infl2_bool)
+	
+def getFirstQuestion(global_state,user):
+	qs=fetchMoreDifficultQuestion(5.0,user)
+	userState=global_state
+	userState.theta=qs.b
+	userState.put()
+	return qs
+
+def getNextQuestion(global_state,user):
+	global jumpFactor
+	#get the list of all questions faced
+	allFaced=fetchAllQuestionsParamsTestModule(user)
+	userState=fetchGlobal(user)
+	allFacedCount=len(allFaced)
+	print allFaced
+	#get the last two questions, observe the trend
+	if allFacedCount>=2:
+		(a1,b1,c1,sec_last)=allFaced[len(allFaced)-2]
+		(a2,b2,c2,last)=allFaced[len(allFaced)-1]
 	else:
-		logging.info('\nStd. Calculation for question: %s'%currentUserGlobals.TotalQuestions)
-		nextTheta=evalNextQuestion(u,currentUser,float(currentUserGlobals.theta))
+		#faced only 1 question till now
+		(a1,b1,c1,sec_last)=allFaced[len(allFaced)-1]
+		(a2,b2,c2,last)=allFaced[len(allFaced)-1]
+		#filling with duplicate values
+		
+	lasts=[]
 	
-	logging.info('\nnextTheta=%s\n'%nextTheta)
 	
-	if nextTheta <0 or nextTheta>10:
-		vals={'message':'Your test has ended!<br>Result :<h1>Inconclusive</h1><br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
-		templateMessage=jinjaEnv.get_template('message.html')
-		self.response.out.write(templateMessage.render(vals))
-		return
-	time.sleep(1)
-	if float(currentUserGlobals.theta) < nextTheta:
-		q=fetchMoreDifficultQuestion(nextTheta,currentUser)
+	if sec_last==globals.correctAnswer:
+		lasts.append(True)
 	else:
-		q=fetchLessDifficultQuestion(nextTheta,currentUser)
-	logging.info('\nq=%s\n'%q)
-	if q == False:
-		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
-		templateMessage=jinjaEnv.get_template('message.html')
-		self.response.out.write(templateMessage.render(vals))
+		lasts.append(False)
+	if last==globals.correctAnswer:
+		lasts.append(True)
 	else:
-		questionTimerEnd=round(time.time()+32.5)
-		update_or_Insert(currentUser, str(TotalQuestions), str(q), str(questionTimerEnd),nextTheta)
-		time.sleep(1.5)
-		self.redirect("/test")
-	return
-################################# PG 85 ALGO END##################################################
-
-
-################################# ALGO 2 START##################################################
-### SRC : http://luna.cas.usf.edu/~mbrannic/files/pmet/irt.htm #################################
-################################################################################################
-
-def checkTheta(self,nextTheta):
-	if nextTheta <=0 or nextTheta>10.5:
-		vals={'message':'Your test has ended!<br>Result :<h1>Inconclusive</h1><br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
-		templateMessage=jinjaEnv.get_template('message.html')
-		self.response.out.write(templateMessage.render(vals))
-	return
-
-def DisplayResult(self,user):
-	str=ReturnScores(user)
-	vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(str)}
-	template=jinjaEnv.get_template('message.html')
-	self.response.out.write(template.render(vals))
-	return
-
-def fetchNextQuestionParams(self,user, pastAnswer, currentAnswer, currentTheta, TotalQuestions):
-	q=False
-	nextTheta=0
-	if pastAnswer=='correct' and currentAnswer=='correct':
-		nextTheta=currentTheta+(0.5)
-		logging.info('\nnextTheta=%s\n'%nextTheta)
-		checkTheta(self, nextTheta)
-		updateOrInsertScores(user,upperBound=nextTheta)
-		time.sleep(0.5)
-		q=fetchMoreDifficultQuestion(nextTheta,user)
-	elif currentAnswer=='incorrect':
-		nextTheta=currentTheta-(0.5)
-		logging.info('\nnextTheta=%s\n'%nextTheta)
-		checkTheta(self, nextTheta)
-		updateOrInsertScores(user,lowerBound=nextTheta)
-		time.sleep(0.5)
-		q=fetchLessDifficultQuestion(nextTheta,user)
-	else:
-		DisplayResult(self,user)
+		lasts.append(False)
+		
+	print lasts
+	#calculate the nature of next question
+	#choose next question according to nature
+	(nextNature,inf1,inf2)=calculateNatureOfNextQuestion(lasts,userState.inflexion_1,userState.inflexion_2)
+	userState.inflexion_1=inf1
+	userState.inflexion_2=inf2
+	qs=None
+	if nextNature==globals.tougherQuestion:
+		try:
+			qs=fetchMoreDifficultQuestion(userState.theta*jumpFactor,user)
+		except NoMoreQuestionError:
+			#handle error with a page, terminate test
+			raise
+		print "Asking tougher"
+		userState.theta=qs.b
+	if nextNature==globals.easierQuestion:
+		try:
+			qs=fetchLessDifficultQuestion(userState.theta,user)
+		except NoMoreQuestionError:
+			raise
+		print "Asking easier"
+		userState.theta=qs.b
+	if nextNature==globals.maxInfoQuestion:
+		(b_mle,se)=calculateMLE(userState.theta,user)
+		userState.theta=b_mle
+		try:
+			qs=fetchMostInformativeQuestion(userState,user)
+		except NoMoreQuestionError:
+			raise
+		print "Asking max info"
+		# test is finished
+		if userState.inflexion_1 and userState.inflexion_2:
+			(b_mle,se)=calculateMLE(userState.theta,user)
+			if se<errorFactor:
+				#precise enough, end test
+				userState.isTestFinished=True
+				
+		#userState.isTestFinished=True
+	#the latest(maximum possible) theta estimation, according to correctness of last answer
 	
-	time.sleep(0.75)
-	if q == False:
-		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
-		templateMessage=jinjaEnv.get_template('message.html')
-		self.response.out.write(templateMessage.render(vals))
-	else:
-		questionTimerEnd=round(time.time()+32.5)
-		update_or_Insert(user, str(TotalQuestions), str(q), str(questionTimerEnd),nextTheta,currentAnswer)
-		time.sleep(1.5)
-		self.redirect("/test")
-	return
-
-
-def getNextQuestion2(self, givenAnswerID, currentUser):
-	#get the currentUser global instances
-	currentUserGlobals=fetchGlobal(currentUser)
-	TotalQuestions=int(currentUserGlobals.TotalQuestions)
-	TotalQuestions=TotalQuestions-1
-	pastAnswer=currentUserGlobals.pastAnswer
-	currentAnswer='incorrect'
+	#at the end, save user state
+	userState.put()
+	return qs
 	
-	if givenAnswerID == '':
-		#no scope of passing here and(or) also time
-		currentAnswer='incorrect'
-	else:
-		CorrectAnswer=isCorrectAnswer(int(givenAnswerID))
-		if CorrectAnswer:
-			currentAnswer='correct'
-	
-	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,0)
-	fetchNextQuestionParams(self,currentUser, pastAnswer, currentAnswer, currentUserGlobals.theta, TotalQuestions)
-	return
-
-################################# ALGO 2 END####################################################
-### SRC : http://luna.cas.usf.edu/~mbrannic/files/pmet/irt.htm #################################
-################################################################################################
-
-
-################################# ALGO 3 START##################################################
-### SRC : Pg 85 + Mixed (AP+GP Series) #########################################################
-################################################################################################
-
-def DisplayResultPg85(self,theta):
-	vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(theta)}
-	template=jinjaEnv.get_template('message.html')
-	self.response.out.write(template.render(vals))
-	return
-
-def getThetaResult(user):
-	params=fetchAllQuestionsParamsTestModule(user)
-	logging.info('\nParams @getThetaResult :%s'%params)
-	theta_S=1
-	while True:
-		#time.sleep(1) #since db operations are going to happen its beneficial to waste some time here #notWorthIt
-		theta_S_1=getNewTheta(params,theta_S)
-		if math.fabs(theta_S_1-theta_S) <=0.2:
-			break
-		else:
-			theta_S=theta_S_1
-	logging.info('\nend of @getThetaResult')
-	return theta_S
-
-	
-def fetchNextQuestionParams2(self,user, pastAnswer, currentAnswer, currentTheta, TotalQuestions):
-	q=False
-	nextTheta=0
-	
-	if(TotalQuestions==0):
-		temp=getThetaResult(user)
-		DisplayResultPg85(self,temp)
-		update_or_Insert(user, str(TotalQuestions), str(0), str(0),temp,currentAnswer)
-	
-	logging.info('\nQuestion No.=%s\n'%TotalQuestions)
-	if currentAnswer=='correct':
-		nextTheta=currentTheta*(1.1665290394)
-		logging.info('\nnextTheta (c)=%s\n'%nextTheta)
-		checkTheta(self, nextTheta)
-		time.sleep(0.5)
-		q=fetchMoreDifficultQuestion(nextTheta,user)
-	elif currentAnswer=='incorrect':
-		nextTheta=currentTheta-(.625)
-		logging.info('\nnextTheta (i)=%s\n'%nextTheta)
-		checkTheta(self, nextTheta)
-		time.sleep(0.5)
-		q=fetchLessDifficultQuestion(nextTheta,user)
-	else:	#passed ofc
-		nextTheta=currentTheta-(.4)
-		logging.info('\nnextTheta (p)=%s\n'%nextTheta)
-		checkTheta(self, nextTheta)
-		time.sleep(0.5)
-		q=fetchLessDifficultQuestion(nextTheta,user)
-	
-	time.sleep(0.75)
-	if q == False:
-		vals={'message':'Sorry, Database is out of Questions!<br>Kindly press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'}
-		templateMessage=jinjaEnv.get_template('message.html')
-		self.response.out.write(templateMessage.render(vals))
-	else:
-		questionTimerEnd=round(time.time()+32.5)
-		update_or_Insert(user, str(TotalQuestions), str(q), str(questionTimerEnd),nextTheta,currentAnswer)
-		time.sleep(1.5)
-		self.redirect("/test")
-	return
-
-
-def getNextQuestion3(self, givenAnswerID, currentUser):
-	#get the currentUser global instances
-	currentUserGlobals=fetchGlobal(currentUser)
-	TotalQuestions=int(currentUserGlobals.TotalQuestions)
-	TotalQuestions=TotalQuestions-1
-	pastAnswer=currentUserGlobals.pastAnswer
-	currentAnswer='incorrect'
-	
-	if givenAnswerID == '':
-		#no scope of passing here and(or) also time
-		currentAnswer='passed'
-	else:
-		CorrectAnswer=isCorrectAnswer(int(givenAnswerID))
-		if CorrectAnswer:
-			currentAnswer='correct'
-	
-	update_or_Insert_QuestionTestModule(currentUserGlobals.questionNumberToGive,givenAnswerID,currentUser,0)
-	fetchNextQuestionParams2(self,currentUser, pastAnswer, currentAnswer, currentUserGlobals.theta, TotalQuestions)
-	return
-
-################################# ALGO 3 END ###################################################
-### SRC : Pg 85 + Mixed (AP+GP Series) #########################################################
-################################################################################################
-
-
 
 class TestModule(webapp2.RequestHandler):
-	def post(self):
-		timeAnswerWasPosted=time.time()
+	def post(self,q_id):
+		global errorFactor
+		#required only for taking answers
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
-		#getNextQuestion(self, timeAnswerWasPosted, self.request.get('option'), user)
-		#getNextQuestion2(self, self.request.get('option'), user)
-		getNextQuestion3(self, self.request.get('option'), user)
-	
-	def get(self):
-		user=users.get_current_user()
-		if not user:
-			self.redirect(users.create_login_url(self.request.uri))
-		currUser=fetchGlobal(user)
-		questionNumberToGive=currUser.questionNumberToGive
-		TotalQuestions=int(currUser.TotalQuestions)
-		questionTimerEnd=currUser.questionTimerEnd
-		if TotalQuestions>0:
-			questionNumber=globals.NumberOfQuestions-TotalQuestions
-			question=fetchQuestion(int((questionNumberToGive)))
-			answers=fetchAnswersOf(question)
-			qNo=str(questionNumber+1)
-			vals={'title':qNo,'endTime':questionTimerEnd,'question':'%s. %s'%(qNo,question.question),'answers':answers,'questionID':questionNumberToGive,'current_user':user}
-			template=jinjaEnv.get_template('testQuestion.html')
-			self.response.out.write(template.render(vals))
+		userState=fetchGlobal(user)
+		a_id=self.request.get('answer')
+		question=None
+		answer=None
+		try:
+			question=fetchQuestion(int(q_id))
+			answer=getAnswer(int(a_id))
+		except dbhelper.InvalidIdError:
+			self.response.out.write("F")
+			return
+		if answer is not None:
+			result=insertQuestionAnswered(user,question.key,answer.key,evaluation=True)
+			self.response.out.write(result)
 		else:
-			temp=getThetaResult(user)
-			vals={'message':'You Have finished giving the test.<br>Score :<h1>%s</h1><br>Press Take Test Button to redo the test!!!<br><br><form id="myForm" action="/" method="GET"><input type="submit" value="Goto Home"></form>'%(temp)}
-			template=jinjaEnv.get_template('message.html')
+			#invalid answer given
+			self.response.out.write("F")
+			
+			
+		#decide if data is sufficient to end test
+		if userState.inflexion_1 and userState.inflexion_2:
+			(b_mle,se)=calculateMLE(userState.theta,user)
+			if se<errorFactor:
+				#precise enough, end test
+				userState.isTestFinished=True
+				userState.put()
+		return
+
+	def get(self):
+		#required for getting question, options and time
+		user=users.get_current_user()
+		if not user:
+			self.redirect(users.create_login_url(self.request.uri))
+		userState=fetchGlobal(user)
+		#see if test finished or not, in which case, printout score
+		if userState.isTestFinished:
+			#throw score
+			#(score,se)=calculateMLE(userState.theta,user)
+			score=userState.theta
+			vals={'score':score}
+			template=jinjaEnv.get_template('score.html')
 			self.response.out.write(template.render(vals))
+			#return
+			return
+		allFaced=fetchAllQuestionsParamsTestModule(user)
+		question=None
+		print "faced",len(allFaced)
+		if len(allFaced)<1:
+			#throw a median question
+			question=getFirstQuestion(userState,user)
+		else:
+			try:
+				question=getNextQuestion(userState,user)
+			except NoMoreQuestionError:
+				vals={"message":"Inconclusive"}
+				template=jinjaEnv.get_template('test_error.html')
+				self.response.out.write(template.render(vals))
+				return
+		try:
+			answers=fetchAnswersOf(question)
+		except InvalidIdError:
+			question=Question(question="Could not find this question")
+		vals={'question':question,'answers':answers,'current_user':user,'evaluation':True}
+		template=jinjaEnv.get_template('answerQuestion.html')
+		self.response.out.write(template.render(vals))
+		
+			
+			
+			
 

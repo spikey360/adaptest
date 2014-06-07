@@ -60,13 +60,9 @@ class HomeHandler(webapp2.RequestHandler):
 		user=users.get_current_user()
 		if not user:
 			self.redirect(users.create_login_url(self.request.uri))
-		else:
-			clearUserTestAnswers(user)
-			time.sleep(0.75)
-			firstQuestion=fetchMoreDifficultQuestion(2.5,user)
-			#update_or_Insert(user,str(10), str(globals.firstQuestion) ,str(round(time.time()+30.5)),1.0)
-			update_or_Insert(user,str(globals.NumberOfQuestions), str(firstQuestion) ,str(round(time.time()+30.5)),2.50)
-		time.sleep(1.5)
+		else:					
+			initiateUserState(user)
+		time.sleep( 2 )
 		self.redirect("/test")
 	
 	

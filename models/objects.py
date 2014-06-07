@@ -32,7 +32,7 @@ class Answer(ndb.Model):
 
 class AnsweredQuestion(ndb.Model):
 	#flag: true=Ability Evaluation answer, false=Parameter estimation Answer
-	evaluation=ndb.BooleanProperty();
+	evaluation=ndb.BooleanProperty()
 	#the user who answered
 	user=ndb.UserProperty()
 	question=ndb.KeyProperty(Question)
@@ -41,35 +41,23 @@ class AnsweredQuestion(ndb.Model):
 	#the time at which this was given
 	time=ndb.DateTimeProperty(auto_now=True)
 
-class Test(ndb.Model):
-	user=ndb.KeyProperty(User)
-	start=ndb.DateTimeProperty()
-	durationLeftInSeconds=ndb.IntegerProperty()
-
-class TestSheet(ndb.Model):
-	test=ndb.KeyProperty(Test)
-	question=ndb.KeyProperty(Question)
-	answer=ndb.KeyProperty(Answer)
-	
 class EstimationCredentials(ndb.Model):
 	user=ndb.UserProperty()
 	estimatedTheta=ndb.FloatProperty()
 	
 class globalInstances(ndb.Model):
 	examinee=ndb.UserProperty()
-	TotalQuestions=ndb.StringProperty()
-	#this question number will contain the id of the question to give so it is quite similar to number 
-	questionNumberToGive=ndb.StringProperty()
-	questionTimerEnd=ndb.StringProperty()
+	#the present assessment of the ability of the candidate
 	theta=ndb.FloatProperty()
-	#a bool like var which will hint on whether the next question should be easy or difficult ;P
-	pastAnswer=ndb.StringProperty()
-
-class ExamineeScores(ndb.Model):
-	examinee=ndb.UserProperty()
-	upperBoundTheta=ndb.FloatProperty()
-	lowerBoundTheta=ndb.FloatProperty()
-
+	#first question wrong/right after all correct/incorrect; False=Not reached yet
+	inflexion_1=ndb.BooleanProperty()
+	#first question right/wrong after activating inflexion_1
+	inflexion_2=ndb.BooleanProperty()
+	isTestFinished=ndb.BooleanProperty()
+	start=ndb.DateTimeProperty(auto_now_add=True)
+	durationInSeconds=ndb.IntegerProperty()
+	
 class Setting(ndb.Model):
 	prop=ndb.StringProperty()
 	val=ndb.StringProperty()
+

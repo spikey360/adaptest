@@ -99,5 +99,46 @@ class EvaluationTest(unittest.TestCase):
 				self.assertRaises(InvalidTimeLeftError,evalFirstQuestion,state,t,0.25)
 			for t in range(31,10000):
 				self.assertRaises(InvalidTimeLeftError,evalFirstQuestion,state,t,0.25)
+	
+	def test_nature_of_next_question(self):
+		inflexion_1=False
+		inflexion_2=False
+		lastCorrect=True
+		#2 correct
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([True,True],inflexion_1,inflexion_2)
+		self.assertEquals(tougherQuestion,nature)
+		#(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion(lastCorrect,inflexion_1,inflexion_2)
+		#self.assertEquals(tougherQuestion,nature)
+		#1 wrong
+		lastCorrect=False
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([True,False],inflexion_1,inflexion_2)
+		self.assertEquals(easierQuestion,nature)
+		#1 correct
+		lastCorrect=True
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([False,True],inflexion_1,inflexion_2)
+		self.assertEquals(maxInfoQuestion,nature)
+		#is maxInfoQuestion
+		
+		inflexion_1=False
+		inflexion_2=False
+		lastCorrect=False
+		
+		#3 wrong
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([False,False],inflexion_1,inflexion_2)
+		self.assertEquals(easierQuestion,nature)
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([False,False],inflexion_1,inflexion_2)
+		self.assertEquals(easierQuestion,nature)
+		#(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion(lastCorrect,inflexion_1,inflexion_2)
+		#self.assertEquals(easierQuestion,nature)
+		#2 correct
+		#lastCorrect=True
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([False,True],inflexion_1,inflexion_2)
+		self.assertEquals(tougherQuestion,nature)
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([True,True],inflexion_1,inflexion_2)
+		self.assertEquals(tougherQuestion,nature)
+		#1 wrong
+		#lastCorrect=False
+		(nature,inflexion_1,inflexion_2)=calculateNatureOfNextQuestion([True,False],inflexion_1,inflexion_2)
+		self.assertEquals(maxInfoQuestion,nature)
 				
 
